@@ -16,7 +16,7 @@ const RegistrarCategoria = () => {
 
     try {
       // Conexión con el endpoint de Django
-      const response = await fetch(ENDPOINTS.CATEGORIAS, {
+      const response = await fetch(ENDPOINTS.INVENTARIO.CATEGORIAS, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
