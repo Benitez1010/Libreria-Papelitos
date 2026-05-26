@@ -4,5 +4,6 @@ export const ENDPOINTS = {
   // Módulo de Inventario
   INVENTARIO: {
     CATEGORIAS: `${BASE_URL}categorias/`,
+    PRODUCTOS: `${BASE_URL}productos/`,
   },
 }

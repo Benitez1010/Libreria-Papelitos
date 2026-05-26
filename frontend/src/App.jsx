@@ -3,6 +3,7 @@ import MainLayout from './layouts/MainLayout';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Usuarios from './pages/Usuarios/Usuarios';
 import RegistrarCategoria from './pages/Categorias/RegistrarCategoria';
+import RegistrarProducto from './pages/Productos/RegistrarProducto';
 
 function App() {
   return (
@@ -17,7 +18,7 @@ function App() {
         <Route path="usuarios" element={<Usuarios />} />
 
         <Route path="categorias/nuevo" element={<RegistrarCategoria />} />
-
+        <Route path="productos/nuevo" element={<RegistrarProducto />} />
       </Route>
     </Routes>
   );
