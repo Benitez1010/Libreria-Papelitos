@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Usuarios from './pages/Usuarios/Usuarios';
+import RegistrarCategoria from './pages/Categorias/RegistrarCategoria';
 
 function App() {
   return (
@@ -15,7 +16,8 @@ function App() {
         {/* Nueva Vista enlazada (localhost:5173/usuarios) */}
         <Route path="usuarios" element={<Usuarios />} />
 
-        <Route index element={<Dashboard />} />
+        <Route path="categorias/nuevo" element={<RegistrarCategoria />} />
+
       </Route>
     </Routes>
   );
