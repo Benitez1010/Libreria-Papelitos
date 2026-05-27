@@ -1,71 +1,136 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Drawer, List, ListItemButton, ListItemIcon, ListItemText, 
-  Collapse, Box, Avatar, Typography 
+  Collapse, Box, Avatar, Typography, Button 
 } from '@mui/material';
 import { 
   Home, ExpandLess, ExpandMore, Inventory, Category, 
   Storefront, SyncAlt, Assessment, Settings, Group, 
-  ManageAccounts, Security 
+  ManageAccounts, Security, Logout 
 } from '@mui/icons-material';
-import { Link } from 'react-router-dom';
-
+import { Link, useNavigate } from 'react-router-dom';
+import { ENDPOINTS } from '../services/api';
 
 // Extraemos el contenido a una variable para no repetir código en las versiones telefono y PC
-const SidebarContent = ({ openAdmin, setOpenAdmin, openConfig, setOpenConfig }) => (
-  <Box>
-    <Box sx={{ p: 3, display: 'flex', alignItems: 'center', gap: 2, borderBottom: '1px solid #2C7A4B' }}>
-      <Avatar sx={{ bgcolor: '#A4B0B5' }} />
-      <Box>
-        <Typography variant="subtitle1" fontWeight="bold">Usuario 1</Typography>
-        <Typography variant="body2" sx={{ color: '#A3C4AC' }}>Administrador</Typography>
+const SidebarContent = ({ openAdmin, setOpenAdmin, openConfig, setOpenConfig, onLogout, usuarioInfo }) => (
+  <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <Box>
+      <Box sx={{ p: 3, display: 'flex', alignItems: 'center', gap: 2, borderBottom: '1px solid #2C7A4B' }}>
+        <Avatar sx={{ bgcolor: '#A4B0B5' }} />
+        <Box>
+          <Typography variant="subtitle1" fontWeight="bold">
+            {usuarioInfo ? usuarioInfo.username : 'Cargando...'}
+          </Typography>
+          <Typography variant="body2" sx={{ color: '#A3C4AC' }}>
+            {usuarioInfo ? usuarioInfo.rol : ''}
+          </Typography>
+        </Box>
       </Box>
+
+      <List sx={{ mt: 2 }}>
+        <ListItemButton component={Link} to="/">
+          <ListItemIcon><Home sx={{ color: 'white' }} /></ListItemIcon>
+          <ListItemText primary="Inicio" />
+        </ListItemButton>
+
+        <ListItemButton onClick={() => setOpenAdmin(!openAdmin)} sx={{ bgcolor: openAdmin ? '#2C7A4B' : 'transparent' }}>
+          <ListItemIcon><Assessment sx={{ color: 'white' }} /></ListItemIcon>
+          <ListItemText primary="Gestión Administrativa" />
+          {openAdmin ? <ExpandLess /> : <ExpandMore />}
+        </ListItemButton>
+        <Collapse in={openAdmin} timeout="auto" unmountOnExit>
+          <List component="div" disablePadding>
+            
+            <ListItemButton sx={{ pl: 4 }}><ListItemIcon><Inventory sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Listado de Artículos" /></ListItemButton>
+            <ListItemButton sx={{ pl: 4 }}><ListItemIcon><Category sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Categorías" /></ListItemButton>
+            <ListItemButton sx={{ pl: 4 }}><ListItemIcon><Storefront sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Área de almacenaje" /></ListItemButton>
+            <ListItemButton sx={{ pl: 4 }}><ListItemIcon><SyncAlt sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Movimientos" /></ListItemButton>
+            <ListItemButton sx={{ pl: 4 }}><ListItemIcon><Assessment sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Control de Inventario" /></ListItemButton>
+          
+          </List>
+        </Collapse>
+
+        <ListItemButton onClick={() => setOpenConfig(!openConfig)} sx={{ bgcolor: openConfig ? '#2C7A4B' : 'transparent', mt: 1 }}>
+          <ListItemIcon><Settings sx={{ color: 'white' }} /></ListItemIcon>
+          <ListItemText primary="Configuración" />
+          {openConfig ? <ExpandLess /> : <ExpandMore />}
+        </ListItemButton>
+        <Collapse in={openConfig} timeout="auto" unmountOnExit>
+          <List component="div" disablePadding>
+            
+            <ListItemButton component={Link} to="/usuarios" sx={{ pl: 4 }}><ListItemIcon><Group sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Usuarios" /></ListItemButton>
+            <ListItemButton sx={{ pl: 4 }}><ListItemIcon><ManageAccounts sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Roles" /></ListItemButton>
+            <ListItemButton sx={{ pl: 4 }}><ListItemIcon><Security sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Acceso por Rol" /></ListItemButton>
+          
+          </List>
+        </Collapse>
+      </List>
     </Box>
 
-    <List sx={{ mt: 2 }}>
-      <ListItemButton component={Link} to="/">
-        <ListItemIcon><Home sx={{ color: 'white' }} /></ListItemIcon>
-        <ListItemText primary="Inicio" />
-      </ListItemButton>
-
-      <ListItemButton onClick={() => setOpenAdmin(!openAdmin)} sx={{ bgcolor: openAdmin ? '#2C7A4B' : 'transparent' }}>
-        <ListItemIcon><Assessment sx={{ color: 'white' }} /></ListItemIcon>
-        <ListItemText primary="Gestión Administrativa" />
-        {openAdmin ? <ExpandLess /> : <ExpandMore />}
-      </ListItemButton>
-      <Collapse in={openAdmin} timeout="auto" unmountOnExit>
-        <List component="div" disablePadding>
-          
-          <ListItemButton sx={{ pl: 4 }}><ListItemIcon><Inventory sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Listado de Artículos" /></ListItemButton>
-          <ListItemButton sx={{ pl: 4 }}><ListItemIcon><Category sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Categorías" /></ListItemButton>
-          <ListItemButton sx={{ pl: 4 }}><ListItemIcon><Storefront sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Área de almacenaje" /></ListItemButton>
-          <ListItemButton sx={{ pl: 4 }}><ListItemIcon><SyncAlt sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Movimientos" /></ListItemButton>
-          <ListItemButton sx={{ pl: 4 }}><ListItemIcon><Assessment sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Control de Inventario" /></ListItemButton>
-        
-        </List>
-      </Collapse>
-
-      <ListItemButton onClick={() => setOpenConfig(!openConfig)} sx={{ bgcolor: openConfig ? '#2C7A4B' : 'transparent', mt: 1 }}>
-        <ListItemIcon><Settings sx={{ color: 'white' }} /></ListItemIcon>
-        <ListItemText primary="Configuración" />
-        {openConfig ? <ExpandLess /> : <ExpandMore />}
-      </ListItemButton>
-      <Collapse in={openConfig} timeout="auto" unmountOnExit>
-        <List component="div" disablePadding>
-          
-          <ListItemButton component={Link} to="/usuarios" sx={{ pl: 4 }}><ListItemIcon><Group sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Usuarios" /></ListItemButton>
-          <ListItemButton sx={{ pl: 4 }}><ListItemIcon><ManageAccounts sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Roles" /></ListItemButton>
-          <ListItemButton sx={{ pl: 4 }}><ListItemIcon><Security sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Acceso por Rol" /></ListItemButton>
-        
-        </List>
-      </Collapse>
-    </List>
+    {/* ========== BOTÓN CERRAR SESIÓN ========== */}
+    <Box sx={{ p: 2, mt: 'auto' }}>
+      <Button
+        fullWidth
+        variant="outlined"
+        onClick={onLogout}
+        startIcon={<Logout />}
+        sx={{
+          color: 'white',
+          borderColor: '#2C7A4B',
+          '&:hover': { borderColor: 'white', backgroundColor: 'rgba(255,255,255,0.1)' },
+          textTransform: 'none',
+          justifyContent: 'flex-start',
+          pl: 2
+        }}
+      >
+        Cerrar Sesión
+      </Button>
+    </Box>
   </Box>
 );
 
 const Sidebar = ({ mobileOpen, handleDrawerToggle, drawerWidth }) => {
   const [openAdmin, setOpenAdmin] = useState(false);
   const [openConfig, setOpenConfig] = useState(false);
+  const [usuarioInfo, setUsuarioInfo] = useState(null);
+  const navigate = useNavigate();
+
+  // Obtener información del usuario logueado
+  useEffect(() => {
+    const obtenerUsuario = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      try {
+        const response = await fetch(`${ENDPOINTS.SEGURIDAD.LOGIN.replace('/login/', '')}/me/`, {
+          headers: {
+            'Authorization': `Token ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          // Convertir el código del rol a texto legible
+          const rolTexto = data.rol === 'ADMIN' ? 'Administrador' : 'Operador';
+          setUsuarioInfo({
+            username: data.username,
+            rol: rolTexto,
+          });
+        }
+      } catch (error) {
+        console.error('Error al obtener usuario:', error);
+      }
+    };
+
+    obtenerUsuario();
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setUsuarioInfo(null);
+    navigate('/login');
+  };
 
   return (
     <Box component="nav" sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}>
@@ -80,7 +145,14 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle, drawerWidth }) => {
           '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth, backgroundColor: '#1E5631', color: 'white' },
         }}
       >
-        <SidebarContent openAdmin={openAdmin} setOpenAdmin={setOpenAdmin} openConfig={openConfig} setOpenConfig={setOpenConfig} />
+        <SidebarContent 
+          openAdmin={openAdmin} 
+          setOpenAdmin={setOpenAdmin} 
+          openConfig={openConfig} 
+          setOpenConfig={setOpenConfig} 
+          onLogout={handleLogout}
+          usuarioInfo={usuarioInfo}
+        />
       </Drawer>
 
       {/* Drawer fijo para monitores grandes */}
@@ -92,7 +164,14 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle, drawerWidth }) => {
         }}
         open
       >
-        <SidebarContent openAdmin={openAdmin} setOpenAdmin={setOpenAdmin} openConfig={openConfig} setOpenConfig={setOpenConfig} />
+        <SidebarContent 
+          openAdmin={openAdmin} 
+          setOpenAdmin={setOpenAdmin} 
+          openConfig={openConfig} 
+          setOpenConfig={setOpenConfig} 
+          onLogout={handleLogout}
+          usuarioInfo={usuarioInfo}
+        />
       </Drawer>
     </Box>
   );

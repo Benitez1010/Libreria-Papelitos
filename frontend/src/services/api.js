@@ -6,4 +6,9 @@ export const ENDPOINTS = {
     CATEGORIAS: `${BASE_URL}categorias/`,
     PRODUCTOS: `${BASE_URL}productos/`,
   },
+
+  // Módulo de Seguridad
+  SEGURIDAD: {
+    LOGIN: `${BASE_URL}login/`,
+  },
 }
