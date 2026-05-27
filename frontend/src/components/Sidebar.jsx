@@ -15,17 +15,48 @@ import { ENDPOINTS } from '../services/api';
 const SidebarContent = ({ openAdmin, setOpenAdmin, openConfig, setOpenConfig, onLogout, usuarioInfo }) => (
   <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
     <Box>
-      <Box sx={{ p: 3, display: 'flex', alignItems: 'center', gap: 2, borderBottom: '1px solid #2C7A4B' }}>
-        <Avatar sx={{ bgcolor: '#A4B0B5' }} />
-        <Box>
-          <Typography variant="subtitle1" fontWeight="bold">
-            {usuarioInfo ? usuarioInfo.username : 'Cargando...'}
-          </Typography>
-          <Typography variant="body2" sx={{ color: '#A3C4AC' }}>
-            {usuarioInfo ? usuarioInfo.rol : ''}
-          </Typography>
-        </Box>
-      </Box>
+          <Box sx={{ p: 3, textAlign: 'center', borderBottom: '1px solid #2C7A4B', backgroundColor: 'rgba(44, 122, 75, 0.3)' }}>
+  {/* Círculo con inicial del usuario */}
+  <Box 
+    sx={{ 
+      width: 50, 
+      height: 50, 
+      borderRadius: '50%', 
+      backgroundColor: '#2C7A4B',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      margin: '0 auto',
+      mb: 1.5,
+      border: '2px solid #A3C4AC'
+    }}
+  >
+    <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold' }}>
+      {usuarioInfo ? usuarioInfo.username.charAt(0).toUpperCase() : '?'}
+    </Typography>
+  </Box>
+  
+  {/* Nombre de usuario */}
+  <Typography variant="subtitle1" fontWeight="bold" sx={{ color: 'white' }}>
+    {usuarioInfo ? usuarioInfo.username : 'Cargando...'}
+  </Typography>
+  
+  {/* Rol con indicador */}
+  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5, mt: 0.5 }}>
+    <Box 
+      sx={{ 
+        width: 8, 
+        height: 8, 
+        borderRadius: '50%', 
+        backgroundColor: '#4CAF50',
+        display: 'inline-block'
+      }} 
+    />
+    <Typography variant="body2" sx={{ color: '#A3C4AC' }}>
+      {usuarioInfo ? usuarioInfo.rol : ''}
+    </Typography>
+  </Box>
+</Box>
 
       <List sx={{ mt: 2 }}>
         <ListItemButton component={Link} to="/">
