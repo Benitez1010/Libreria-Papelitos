@@ -6,6 +6,8 @@ import RegistrarCategoria from './pages/Categorias/RegistrarCategoria';
 import RegistrarProducto from './pages/Productos/RegistrarProducto';
 import RutaPrivada from './components/RutaPrivada';
 import Login from './pages/Login/Login';
+import UsuarioAcceso from './pages/Configuracion/UsuarioAcceso';
+import AccesoRol from './pages/Configuracion/AccesoRol';
 
 function App() {
   return (
@@ -23,6 +25,12 @@ function App() {
           
           {/* Nueva Vista enlazada (localhost:5173/usuarios) */}
           <Route path="usuarios" element={<Usuarios />} />
+
+          {/*Vista de menu de acceso por usuario*/}
+          <Route path="Listadousuarios" element={<UsuarioAcceso />} />
+
+          {/* Vista de configuración de acceso por rol */}
+          <Route path="Listadousuarios/acceso-rol" element={<AccesoRol />} />
 
           <Route path="categorias/nuevo" element={<RegistrarCategoria />} />
           <Route path="productos/nuevo" element={<RegistrarProducto />} />

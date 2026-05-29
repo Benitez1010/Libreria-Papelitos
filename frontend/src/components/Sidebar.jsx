@@ -91,7 +91,7 @@ const SidebarContent = ({ openAdmin, setOpenAdmin, openConfig, setOpenConfig, on
             
             <ListItemButton component={Link} to="/usuarios" sx={{ pl: 4 }}><ListItemIcon><Group sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Usuarios" /></ListItemButton>
             <ListItemButton sx={{ pl: 4 }}><ListItemIcon><ManageAccounts sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Roles" /></ListItemButton>
-            <ListItemButton sx={{ pl: 4 }}><ListItemIcon><Security sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Acceso por Rol" /></ListItemButton>
+            <ListItemButton component={Link} to="/Listadousuarios" sx={{ pl: 4 }}><ListItemIcon><Security sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Acceso por Rol" /></ListItemButton>
           
           </List>
         </Collapse>
