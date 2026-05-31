@@ -149,11 +149,10 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle, drawerWidth }) => {
         if (response.ok) {
           const data = await response.json();
           // Convertir el código del rol a texto legible
-          const rolTexto = data.rol === 'ADMIN' ? 'Administrador' : 'Operador';
-          setUsuarioInfo({
-            username: data.username,
-            rol: rolTexto,
-          });
+                      setUsuarioInfo({
+              username: data.username,
+              rol: data.rol_display || data.rol,
+            });
         }
       } catch (error) {
         console.error('Error al obtener usuario:', error);

@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Box, Button, TextField, Typography, Paper, 
-  Fade, CircularProgress, Slide 
+  Fade, CircularProgress, Slide, IconButton, InputAdornment
 } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { ENDPOINTS } from '../../services/api';
 
@@ -12,14 +13,22 @@ const Login = () => {
   const [error, setError] = useState('');
   const [cargando, setCargando] = useState(false);
   const [mostrarError, setMostrarError] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // <-- NUEVO: controlar ojito
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+    // Si ya hay sesión iniciada, redirigir al dashboard
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      navigate('/');
+    }
+  }, [navigate]);
+
+    const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setMostrarError(false);
     
-    // Validación: campos vacíos
     if (!usuario.trim() || !contrasena.trim()) {
       setError('Por favor complete todos los campos');
       setMostrarError(true);
@@ -40,23 +49,36 @@ const Login = () => {
         }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error('Credenciales inválidas, intente nuevamente');
+        // Leer el mensaje de error específico del backend
+        const mensajeError = 
+          data.non_field_errors?.[0] || 
+          data.username?.[0] || 
+          data.password?.[0] || 
+          'Credenciales inválidas, intente nuevamente';
+        
+        setError(mensajeError);
+        setMostrarError(true);
+        setCargando(false);
+        return;
       }
 
-      const data = await response.json();
-      
-      // Guardar token para mantener la sesión iniciada
+      // Login exitoso
       localStorage.setItem('token', data.token);
-      
-      // Ir al dashboard
       navigate('/');
     } catch (err) {
-      setError('Credenciales inválidas, intente nuevamente');
+      setError('Error de conexión con el servidor');
       setMostrarError(true);
     } finally {
       setCargando(false);
     }
+  };
+
+  // NUEVO: alternar mostrar/ocultar contraseña
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -74,12 +96,12 @@ const Login = () => {
         <Paper 
           elevation={6} 
           sx={{ 
-  display: 'flex', 
-  width: { xs: '100%', sm: '900px' }, 
-  minHeight: '500px',
-  borderRadius: 3,
-  overflow: 'hidden'
-}}
+            display: 'flex', 
+            width: { xs: '100%', sm: '900px' }, 
+            minHeight: '500px',
+            borderRadius: 3,
+            overflow: 'hidden'
+          }}
         >
           {/* ========== PANEL IZQUIERDO (Verde oscuro con logo) ========== */}
           <Box 
@@ -94,7 +116,6 @@ const Login = () => {
               gap: 3
             }}
           >
-            {/* Logo de Papelitos */}
             <Box 
               component="img" 
               src="/logo.png" 
@@ -167,14 +188,31 @@ const Login = () => {
                   <Typography variant="body1" sx={{ mb: 1, color: 'black', fontWeight: 500 }}>
                     Contraseña
                   </Typography>
-                  <TextField
+                                    <TextField
                     fullWidth
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     value={contrasena}
                     onChange={(e) => setContrasena(e.target.value)}
                     placeholder="Ingrese su contraseña"
                     disabled={cargando}
-                    sx={{ 
+                    slotProps={{
+                      input: {
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              onClick={toggleShowPassword}
+                              edge="end"
+                              sx={{ color: '#666' }}
+                            >
+                              {showPassword ? <VisibilityOff /> : <Visibility />}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      },
+                    }}
+                     sx={{ 
+                      '& input::-ms-reveal': { display: 'none' },
+                      '& input::-webkit-textfield-decoration-container': { display: 'none' },
                       backgroundColor: 'white', 
                       borderRadius: 2,
                       '& .MuiOutlinedInput-root': { 
