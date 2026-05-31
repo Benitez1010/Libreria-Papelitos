@@ -11,37 +11,32 @@ import { ENDPOINTS } from '../../services/api';
 const UsuarioAcceso = () => {
   const navigate = useNavigate();
   const [usuarios, setUsuarios] = useState([]);
-  const [usuarioActual, setUsuarioActual] = useState(null); // Para saber quién tiene la sesión iniciada
+  const [usuarioActual, setUsuarioActual] = useState(null); 
   const [cargando, setCargando] = useState(true);
   const [snackbar, setSnackbar] = useState({ abierto: false, mensaje: '', tipo: 'success' });
 
   const obtenerDatos = async () => {
     const token = localStorage.getItem('token');
     try {
-      // 1. Obtener quién soy yo (usuario logueado)
       const resMe = await fetch(`${ENDPOINTS.SEGURIDAD.LOGIN.replace('/login/', '')}/me/`, {
         headers: { 'Authorization': `Token ${token}` },
       });
       const meData = resMe.ok ? await resMe.json() : null;
       setUsuarioActual(meData);
 
-      // 2. Obtener toda la lista de usuarios
       const response = await fetch(`${ENDPOINTS.SEGURIDAD.LOGIN.replace('/login/', '')}/usuarios/`, {
         headers: { 'Authorization': `Token ${token}` },
       });
       
       if (response.ok) {
         let data = await response.json();
-        
-        // 3. Ordenar la lista para que "YO" salga de primero
         if (meData) {
           data = data.sort((a, b) => {
-            if (a.id === meData.id) return -1; // Poner a 'a' de primero
-            if (b.id === meData.id) return 1;  // Poner a 'b' de primero
+            if (a.id === meData.id) return -1;
+            if (b.id === meData.id) return 1;
             return 0;
           });
         }
-        
         setUsuarios(data);
       } else {
         setSnackbar({ abierto: true, mensaje: 'Error al cargar usuarios', tipo: 'error' });
@@ -59,7 +54,6 @@ const UsuarioAcceso = () => {
 
   return (
     <Box sx={{ p: 4 }}>
-      
       <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
         <PersonSearchIcon sx={{ fontSize: 40, color: '#009F4D' }} />
         <Typography variant="h4" fontWeight="bold">Control de accesos</Typography>
@@ -72,39 +66,32 @@ const UsuarioAcceso = () => {
       ) : (
         <TableContainer component={Paper} elevation={3} sx={{ borderRadius: 3 }}>
           <Table>
-            
             <TableHead sx={{ bgcolor: '#1E5631' }}>
               <TableRow>
+                <TableCell sx={{ fontWeight: 'bold', color: '#ffffff' }}>Nº</TableCell>
                 <TableCell sx={{ fontWeight: 'bold', color: '#ffffff' }}>Usuario</TableCell>
                 <TableCell sx={{ fontWeight: 'bold', color: '#ffffff' }}>Rol</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', color: '#ffffff' }}>Área Asignada</TableCell>
                 <TableCell align="center" sx={{ fontWeight: 'bold', color: '#ffffff' }}>Acciones</TableCell>
               </TableRow>
             </TableHead>
             
             <TableBody>
-              {usuarios.map((user) => {
-                // LÓGICA DE RESTRICCIONES
+              {usuarios.map((user, index) => {
                 const soyYo = usuarioActual && usuarioActual.id === user.id;
-                
-                // Si yo soy Operador y el usuario de esta fila es Admin
                 const soyOperadorYelEsAdmin = usuarioActual?.rol !== 'ADMIN' && user.rol === 'ADMIN';
-                
-                // Bloquear el botón si soy yo mismo, o si soy operador intentando editar a un Admin
                 const botonBloqueado = soyYo || soyOperadorYelEsAdmin;
 
                 return (
                   <TableRow 
                     key={user.id} 
                     hover
-                    // Pintar la fila de verde claro si soy yo
                     sx={{ backgroundColor: soyYo ? 'rgba(0, 159, 77, 0.08)' : 'inherit' }}
                   >
+                    <TableCell>{index + 1}</TableCell>
                     <TableCell>
                       <Typography fontWeight={soyYo ? 'bold' : 'normal'} component="span">
                         {user.username}
                       </Typography>
-                      {/* Etiqueta visual para identificar rápidamente mi cuenta */}
                       {soyYo && (
                         <Chip label="Tú" size="small" color="success" sx={{ ml: 1.5, height: 20, fontSize: '0.7rem' }} />
                       )}
@@ -112,18 +99,14 @@ const UsuarioAcceso = () => {
                     <TableCell>
                       <Chip label={user.rol_display} color={user.rol === 'ADMIN' ? 'primary' : 'default'} size="small" />
                     </TableCell>
-                    <TableCell>
-                      <Chip label={user.area_display || 'N/A'} variant="outlined" size="small" />
-                    </TableCell>
                     <TableCell align="center">
                       <Button 
                         variant="outlined" 
                         color="success"
                         startIcon={<SettingsSuggestIcon />}
-                        disabled={botonBloqueado} // Aplica la restricción
+                        disabled={botonBloqueado}
                         onClick={() => navigate(`/Listadousuarios/acceso-rol/${user.id}`)} 
                         sx={{
-                          // Estilo visual cuando está bloqueado para que se vea intencional
                           '&.Mui-disabled': {
                             backgroundColor: '#f5f5f5',
                             color: '#a0a0a0',
