@@ -11,12 +11,16 @@ import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import { useNavigate } from 'react-router-dom';
 import { ENDPOINTS } from '../../services/api';
-import EditarCategoria from './EditarCategoria'; // IMPORTAMOS TU OTRA TAREA DE JIRA
+import EditarCategoria from './EditarCategoria';
 
 const Categorias = () => {
   const [categorias, setCategorias] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // Estados de seguridad
+  const [esAdmin, setEsAdmin] = useState(false);
+  const [permisos, setPermisos] = useState({});
   
   // Estados para controlar el Modal Externo
   const [modalOpen, setModalOpen] = useState(false);
@@ -26,22 +30,39 @@ const Categorias = () => {
   const navigate = useNavigate();
   const verdePapelitos = '#1E5631';
 
-  const cargarCategorias = async () => {
-    try {
-      const response = await fetch(ENDPOINTS.INVENTARIO.CATEGORIAS);
-      if (response.ok) {
-        const data = await response.json();
-        setCategorias(data);
-      }
-    } catch (error) {
-      console.error("Error al cargar categorías:", error);
-    } finally {
-      setCargando(false);
-    }
-  };
-
   useEffect(() => {
-    cargarCategorias();
+    const inicializarDatos = async () => {
+      const token = localStorage.getItem('token');
+      try {
+        // 1. Obtener los permisos del usuario logueado
+        if (token) {
+          const resUser = await fetch(`${ENDPOINTS.SEGURIDAD.LOGIN.replace('/login/', '')}/me/`, {
+            headers: {
+              'Authorization': `Token ${token}`,
+              'Content-Type': 'application/json',
+            }
+          });
+          if (resUser.ok) {
+            const dataUser = await resUser.json();
+            setEsAdmin(dataUser.rol === 'ADMIN');
+            setPermisos(dataUser.permisos || {});
+          }
+        }
+
+        // 2. Cargar las categorías
+        const response = await fetch(ENDPOINTS.INVENTARIO.CATEGORIAS);
+        if (response.ok) {
+          const data = await response.json();
+          setCategorias(data);
+        }
+      } catch (error) {
+        console.error("Error al cargar datos:", error);
+      } finally {
+        setCargando(false);
+      }
+    };
+
+    inicializarDatos();
   }, []);
 
   const handleEliminarCategoria = async (id) => {
@@ -54,7 +75,10 @@ const Categorias = () => {
 
       if (response.ok) {
         setAlertaGlobal({ tipo: 'success', mensaje: 'Categoría eliminada correctamente.' });
-        cargarCategorias();
+        // Recargar categorías manualmente sin volver a pedir el usuario
+        const resCat = await fetch(ENDPOINTS.INVENTARIO.CATEGORIAS);
+        if (resCat.ok) setCategorias(await resCat.json());
+        
         setTimeout(() => setAlertaGlobal({ tipo: '', mensaje: '' }), 3000);
       } else {
         setAlertaGlobal({ 
@@ -70,6 +94,11 @@ const Categorias = () => {
   const categoriasFiltradas = categorias.filter((cat) =>
     cat.nombre.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Validaciones booleanas para pintar o esconder la UI
+  const puedeAgregar = esAdmin || permisos.categorias?.agregar;
+  const puedeEditar = esAdmin || permisos.categorias?.editar;
+  const puedeEliminar = esAdmin || permisos.categorias?.eliminar;
 
   if (cargando) return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}><CircularProgress color="success" /></Box>;
 
@@ -91,9 +120,13 @@ const Categorias = () => {
           InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: verdePapelitos }} /></InputAdornment> }}
           sx={{ backgroundColor: '#fff', width: '350px', '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
         />
-        <Button variant="contained" startIcon={<AddIcon />} onClick={() => navigate('/categorias/nuevo')} sx={{ backgroundColor: verdePapelitos, '&:hover': { backgroundColor: '#143d22' }, borderRadius: '8px', textTransform: 'none' }}>
-          Agregar Categoría
-        </Button>
+        
+        {/* CONDICIONAL: Botón Agregar */}
+        {puedeAgregar && (
+          <Button variant="contained" startIcon={<AddIcon />} onClick={() => navigate('/categorias/nuevo')} sx={{ backgroundColor: verdePapelitos, '&:hover': { backgroundColor: '#143d22' }, borderRadius: '8px', textTransform: 'none' }}>
+            Agregar Categoría
+          </Button>
+        )}
       </Box>
 
       <TableContainer component={Paper} elevation={3} sx={{ borderRadius: '12px', overflow: 'hidden' }}>
@@ -102,7 +135,9 @@ const Categorias = () => {
             <TableRow>
               <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>ID</TableCell>
               <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>NOMBRE DE LA CATEGORÍA</TableCell>
-              <TableCell sx={{ color: 'white', fontWeight: 'bold', textAlign: 'center' }}>ACCIONES</TableCell>
+              {(puedeEditar || puedeEliminar) && (
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', textAlign: 'center' }}>ACCIONES</TableCell>
+              )}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -111,22 +146,36 @@ const Categorias = () => {
                 <TableRow key={cat.id} hover>
                   <TableCell sx={{ fontWeight: 'bold' }}>#{cat.id}</TableCell>
                   <TableCell>{cat.nombre}</TableCell>
-                  <TableCell sx={{ textAlign: 'center' }}>
-                    <Tooltip title="Editar Categoría">
-                      <IconButton onClick={() => { setCategoriaSeleccionada(cat); setModalOpen(true); }} sx={{ color: verdePapelitos, mr: 1 }}>
-                        <EditIcon />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Eliminar Categoría">
-                      <IconButton onClick={() => handleEliminarCategoria(cat.id)} sx={{ color: '#d32f2f' }}>
-                        <DeleteIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </TableCell>
+                  
+                  {(puedeEditar || puedeEliminar) && (
+                    <TableCell sx={{ textAlign: 'center' }}>
+                      {/* CONDICIONAL: Botón Editar */}
+                      {puedeEditar && (
+                        <Tooltip title="Editar Categoría">
+                          <IconButton onClick={() => { setCategoriaSeleccionada(cat); setModalOpen(true); }} sx={{ color: verdePapelitos, mr: 1 }}>
+                            <EditIcon />
+                          </IconButton>
+                        </Tooltip>
+                      )}
+                      
+                      {/* CONDICIONAL: Botón Eliminar */}
+                      {puedeEliminar && (
+                        <Tooltip title="Eliminar Categoría">
+                          <IconButton onClick={() => handleEliminarCategoria(cat.id)} sx={{ color: '#d32f2f' }}>
+                            <DeleteIcon />
+                          </IconButton>
+                        </Tooltip>
+                      )}
+                    </TableCell>
+                  )}
                 </TableRow>
               ))
             ) : (
-              <TableRow><TableCell colSpan={3} sx={{ textAlign: 'center', py: 4 }}>No se encontraron categorías.</TableCell></TableRow>
+              <TableRow>
+                <TableCell colSpan={(puedeEditar || puedeEliminar) ? 3 : 2} sx={{ textAlign: 'center', py: 4 }}>
+                  No se encontraron categorías.
+                </TableCell>
+              </TableRow>
             )}
           </TableBody>
         </Table>
@@ -138,7 +187,12 @@ const Categorias = () => {
           open={modalOpen} 
           onClose={() => { setModalOpen(false); setCategoriaSeleccionada(null); }} 
           categoria={categoriaSeleccionada}
-          onSuccess={() => { cargarCategorias(); setAlertaGlobal({ tipo: 'success', mensaje: 'Categoría actualizada correctamente.' }); setTimeout(() => setAlertaGlobal({ tipo: '', mensaje: '' }), 3000); }}
+          onSuccess={() => { 
+            // Recarga las categorías limpiamente
+            fetch(ENDPOINTS.INVENTARIO.CATEGORIAS).then(res => res.json()).then(data => setCategorias(data));
+            setAlertaGlobal({ tipo: 'success', mensaje: 'Categoría actualizada correctamente.' }); 
+            setTimeout(() => setAlertaGlobal({ tipo: '', mensaje: '' }), 3000); 
+          }}
         />
       )}
     </Box>
