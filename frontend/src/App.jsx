@@ -6,6 +6,8 @@ import RegistrarCategoria from './pages/Categorias/RegistrarCategoria';
 import RegistrarProducto from './pages/Productos/RegistrarProducto';
 import RutaPrivada from './components/RutaPrivada';
 import Login from './pages/Login/Login';
+import EditarCategoria from './pages/Categorias/EditarCategoria'; 
+import Categorias from './pages/Categorias/Categorias';
 
 function App() {
   return (
@@ -23,8 +25,12 @@ function App() {
           
           {/* Nueva Vista enlazada (localhost:5173/usuarios) */}
           <Route path="usuarios" element={<Usuarios />} />
-
+          {/* Módulo de Categorías en App.jsx */}
+          <Route path="categorias" element={<Categorias />} />
           <Route path="categorias/nuevo" element={<RegistrarCategoria />} />
+          <Route path="categorias/editar/:id" element={<EditarCategoria />} />
+
+          
           <Route path="productos/nuevo" element={<RegistrarProducto />} />
         </Route>
       </Route>

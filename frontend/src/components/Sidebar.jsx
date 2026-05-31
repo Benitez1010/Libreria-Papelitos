@@ -73,7 +73,13 @@ const SidebarContent = ({ openAdmin, setOpenAdmin, openConfig, setOpenConfig, on
           <List component="div" disablePadding>
             
             <ListItemButton sx={{ pl: 4 }}><ListItemIcon><Inventory sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Listado de Artículos" /></ListItemButton>
-            <ListItemButton sx={{ pl: 4 }}><ListItemIcon><Category sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Categorías" /></ListItemButton>
+            
+          <ListItemButton component={Link} to="/categorias" sx={{ pl: 4 }}>
+            <ListItemIcon>
+              <Category sx={{ color: 'white', fontSize: 20 }} />
+            </ListItemIcon>
+            <ListItemText primary="Categorías" />
+          </ListItemButton>
             <ListItemButton sx={{ pl: 4 }}><ListItemIcon><Storefront sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Área de almacenaje" /></ListItemButton>
             <ListItemButton sx={{ pl: 4 }}><ListItemIcon><SyncAlt sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Movimientos" /></ListItemButton>
             <ListItemButton sx={{ pl: 4 }}><ListItemIcon><Assessment sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Control de Inventario" /></ListItemButton>
