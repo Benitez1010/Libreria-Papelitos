@@ -8,6 +8,7 @@ import RutaPrivada from './components/RutaPrivada';
 import Login from './pages/Login/Login';
 import UsuarioAcceso from './pages/Configuracion/UsuarioAcceso';
 import AccesoRol from './pages/Configuracion/AccesoRol';
+import ProtectorRuta from './components/ProtectorRuta'; // Ajusta la ruta si es necesario
 
 function App() {
   return (
@@ -24,16 +25,25 @@ function App() {
           <Route index element={<Dashboard />} />
           
           {/* Nueva Vista enlazada (localhost:5173/usuarios) */}
-          <Route path="usuarios" element={<Usuarios />} />
+          <Route path="usuarios" element={
+            <ProtectorRuta modulo="usuarios">
+              <Usuarios />
+            </ProtectorRuta>
+          } />
 
           {/*Vista de menu de acceso por usuario*/}
-          <Route path="Listadousuarios" element={<UsuarioAcceso />} />
+          <Route path="Listadousuarios" element={
+            <ProtectorRuta modulo="acceso_rol">
+              <UsuarioAcceso />
+            </ProtectorRuta>
+          } />
 
-          {/* Vista de configuración de acceso por rol */}
-          <Route path="Listadousuarios/acceso-rol" element={<AccesoRol />} />
+          {/* Vista de configuración de acceso por rol con ID dinámico */}
+          <Route path="Listadousuarios/acceso-rol/:id" element={<AccesoRol />} />
 
           <Route path="categorias/nuevo" element={<RegistrarCategoria />} />
           <Route path="productos/nuevo" element={<RegistrarProducto />} />
+          
         </Route>
       </Route>
     </Routes>

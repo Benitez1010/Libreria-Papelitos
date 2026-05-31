@@ -12,7 +12,27 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ENDPOINTS } from '../services/api';
 
 // Extraemos el contenido a una variable para no repetir código en las versiones telefono y PC
-const SidebarContent = ({ openAdmin, setOpenAdmin, openConfig, setOpenConfig, onLogout, usuarioInfo }) => (
+const SidebarContent = ({ openAdmin, setOpenAdmin, openConfig, setOpenConfig, onLogout, usuarioInfo }) => {
+  
+  // --- LÓGICA AGREGADA ---
+  const esAdmin = usuarioInfo?.rol === 'Administrador';
+  const permisos = usuarioInfo?.permisos || {};
+  
+  const verArticulos = esAdmin || permisos.articulos?.master === true;
+  const verCategorias = esAdmin || permisos.categorias?.master === true;
+  const verAlmacenamiento = esAdmin || permisos.almacenamiento?.master === true;
+  const verMovimientos = esAdmin || permisos.movimientos?.master === true;
+  const verControlInventario = esAdmin || permisos.control_inventario?.master === true;
+  
+  const verUsuarios = esAdmin || permisos.usuarios?.master === true;
+  const verRoles = esAdmin || permisos.roles?.master === true;
+  const verAccesoRol = esAdmin || permisos.acceso_rol?.master === true;
+
+  const mostrarCategoriaAdmin = verArticulos || verCategorias || verAlmacenamiento || verMovimientos || verControlInventario;
+  const mostrarCategoriaConfig = verUsuarios || verRoles || verAccesoRol;
+  // ------------------------
+
+  return (
   <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
     <Box>
           <Box sx={{ p: 3, textAlign: 'center', borderBottom: '1px solid #2C7A4B', backgroundColor: 'rgba(44, 122, 75, 0.3)' }}>
@@ -64,37 +84,43 @@ const SidebarContent = ({ openAdmin, setOpenAdmin, openConfig, setOpenConfig, on
           <ListItemText primary="Inicio" />
         </ListItemButton>
 
-        <ListItemButton onClick={() => setOpenAdmin(!openAdmin)} sx={{ bgcolor: openAdmin ? '#2C7A4B' : 'transparent' }}>
-          <ListItemIcon><Assessment sx={{ color: 'white' }} /></ListItemIcon>
-          <ListItemText primary="Gestión Administrativa" />
-          {openAdmin ? <ExpandLess /> : <ExpandMore />}
-        </ListItemButton>
-        <Collapse in={openAdmin} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
-            
-            <ListItemButton sx={{ pl: 4 }}><ListItemIcon><Inventory sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Listado de Artículos" /></ListItemButton>
-            <ListItemButton sx={{ pl: 4 }}><ListItemIcon><Category sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Categorías" /></ListItemButton>
-            <ListItemButton sx={{ pl: 4 }}><ListItemIcon><Storefront sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Área de almacenaje" /></ListItemButton>
-            <ListItemButton sx={{ pl: 4 }}><ListItemIcon><SyncAlt sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Movimientos" /></ListItemButton>
-            <ListItemButton sx={{ pl: 4 }}><ListItemIcon><Assessment sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Control de Inventario" /></ListItemButton>
-          
-          </List>
-        </Collapse>
+        {/* --- CONDICIONAL AGREGADA --- */}
+        {mostrarCategoriaAdmin && (
+          <>
+            <ListItemButton onClick={() => setOpenAdmin(!openAdmin)} sx={{ bgcolor: openAdmin ? '#2C7A4B' : 'transparent' }}>
+              <ListItemIcon><Assessment sx={{ color: 'white' }} /></ListItemIcon>
+              <ListItemText primary="Gestión Administrativa" />
+              {openAdmin ? <ExpandLess /> : <ExpandMore />}
+            </ListItemButton>
+            <Collapse in={openAdmin} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding>
+                {verArticulos && <ListItemButton sx={{ pl: 4 }}><ListItemIcon><Inventory sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Listado de Artículos" /></ListItemButton>}
+                {verCategorias && <ListItemButton sx={{ pl: 4 }}><ListItemIcon><Category sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Categorías" /></ListItemButton>}
+                {verAlmacenamiento && <ListItemButton sx={{ pl: 4 }}><ListItemIcon><Storefront sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Área de almacenaje" /></ListItemButton>}
+                {verMovimientos && <ListItemButton sx={{ pl: 4 }}><ListItemIcon><SyncAlt sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Movimientos" /></ListItemButton>}
+                {verControlInventario && <ListItemButton sx={{ pl: 4 }}><ListItemIcon><Assessment sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Control de Inventario" /></ListItemButton>}
+              </List>
+            </Collapse>
+          </>
+        )}
 
-        <ListItemButton onClick={() => setOpenConfig(!openConfig)} sx={{ bgcolor: openConfig ? '#2C7A4B' : 'transparent', mt: 1 }}>
-          <ListItemIcon><Settings sx={{ color: 'white' }} /></ListItemIcon>
-          <ListItemText primary="Configuración" />
-          {openConfig ? <ExpandLess /> : <ExpandMore />}
-        </ListItemButton>
-        <Collapse in={openConfig} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
-            
-            <ListItemButton component={Link} to="/usuarios" sx={{ pl: 4 }}><ListItemIcon><Group sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Usuarios" /></ListItemButton>
-            <ListItemButton sx={{ pl: 4 }}><ListItemIcon><ManageAccounts sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Roles" /></ListItemButton>
-            <ListItemButton component={Link} to="/Listadousuarios" sx={{ pl: 4 }}><ListItemIcon><Security sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Acceso por Rol" /></ListItemButton>
-          
-          </List>
-        </Collapse>
+        {/* --- CONDICIONAL AGREGADA --- */}
+        {mostrarCategoriaConfig && (
+          <>
+            <ListItemButton onClick={() => setOpenConfig(!openConfig)} sx={{ bgcolor: openConfig ? '#2C7A4B' : 'transparent', mt: 1 }}>
+              <ListItemIcon><Settings sx={{ color: 'white' }} /></ListItemIcon>
+              <ListItemText primary="Configuración" />
+              {openConfig ? <ExpandLess /> : <ExpandMore />}
+            </ListItemButton>
+            <Collapse in={openConfig} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding>
+                {verUsuarios && <ListItemButton component={Link} to="/usuarios" sx={{ pl: 4 }}><ListItemIcon><Group sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Usuarios" /></ListItemButton>}
+                {verRoles && <ListItemButton sx={{ pl: 4 }}><ListItemIcon><ManageAccounts sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Roles" /></ListItemButton>}
+                {verAccesoRol && <ListItemButton component={Link} to="/Listadousuarios" sx={{ pl: 4 }}><ListItemIcon><Security sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Acceso por Rol" /></ListItemButton>}
+              </List>
+            </Collapse>
+          </>
+        )}
       </List>
     </Box>
 
@@ -118,7 +144,8 @@ const SidebarContent = ({ openAdmin, setOpenAdmin, openConfig, setOpenConfig, on
       </Button>
     </Box>
   </Box>
-);
+  ); // --- CIERRE AGREGADO ---
+};
 
 const Sidebar = ({ mobileOpen, handleDrawerToggle, drawerWidth }) => {
   const [openAdmin, setOpenAdmin] = useState(false);
@@ -147,6 +174,7 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle, drawerWidth }) => {
           setUsuarioInfo({
             username: data.username,
             rol: rolTexto,
+            permisos: data.permisos || {} // --- LÍNEA AGREGADA ---
           });
         }
       } catch (error) {
