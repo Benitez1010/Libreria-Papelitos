@@ -42,6 +42,9 @@ function App() {
           <Route path="Listadousuarios/acceso-rol/:id" element={<AccesoRol />} />
 
           <Route path="categorias/nuevo" element={<RegistrarCategoria />} />
+          <Route path="categorias/editar/:id" element={<EditarCategoria />} />
+
+          
           <Route path="productos/nuevo" element={<RegistrarProducto />} />
           
         </Route>
