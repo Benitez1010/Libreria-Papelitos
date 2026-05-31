@@ -7,6 +7,7 @@ import {
   InputLabel, Select, FormHelperText
 } from '@mui/material';
 import { Block, CheckCircle, PersonAdd, Visibility, VisibilityOff } from '@mui/icons-material';
+import GroupIcon from '@mui/icons-material/Group';
 import { IconButton, InputAdornment } from '@mui/material';
 import { ENDPOINTS } from '../../services/api';
 
@@ -240,11 +241,14 @@ const Usuarios = () => {
   }
 
   return (
-    <Box>
+    <Box sx={{ p: 4 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
-        <Typography variant="h4" fontWeight="bold" sx={{ color: '#1E5631' }}>
-          Gestión de Usuarios
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <GroupIcon sx={{ fontSize: 40, color: '#1E5631' }} />
+          <Typography variant="h4" fontWeight="bold">
+            Gestión de Usuarios
+          </Typography>
+        </Box>
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
           <TextField
             placeholder="Buscar usuario..."

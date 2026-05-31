@@ -62,7 +62,7 @@ const UsuarioAcceso = () => {
       
       <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
         <PersonSearchIcon sx={{ fontSize: 40, color: '#009F4D' }} />
-        <Typography variant="h4" fontWeight="bold">Gestión de Usuarios</Typography>
+        <Typography variant="h4" fontWeight="bold">Control de accesos</Typography>
       </Box>
 
       {cargando ? (
@@ -70,7 +70,7 @@ const UsuarioAcceso = () => {
           <CircularProgress color="success" />
         </Box>
       ) : (
-        <TableContainer component={Paper} elevation={3}>
+        <TableContainer component={Paper} elevation={3} sx={{ borderRadius: 3 }}>
           <Table>
             
             <TableHead sx={{ bgcolor: '#1E5631' }}>
