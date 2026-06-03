@@ -12,6 +12,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { useNavigate } from 'react-router-dom';
 import { ENDPOINTS } from '../../services/api';
 import EditarCategoria from './EditarCategoria';
+import RegistrarCategoriaModal from './RegistrarCategoriaModal';
 
 const Categorias = () => {
   const [categorias, setCategorias] = useState([]);
@@ -24,6 +25,8 @@ const Categorias = () => {
   
   // Estados para controlar el Modal Externo
   const [modalOpen, setModalOpen] = useState(false);
+  // AGREGAR ESTA LÍNEA JUNTO A LOS DEMÁS STATE:
+const [modalCrearOpen, setModalCrearOpen] = useState(false);
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null);
 
   const [alertaGlobal, setAlertaGlobal] = useState({ tipo: '', mensaje: '' });
@@ -123,7 +126,7 @@ const Categorias = () => {
         
         {/* CONDICIONAL: Botón Agregar */}
         {puedeAgregar && (
-          <Button variant="contained" startIcon={<AddIcon />} onClick={() => navigate('/categorias/nuevo')} sx={{ backgroundColor: verdePapelitos, '&:hover': { backgroundColor: '#143d22' }, borderRadius: '8px', textTransform: 'none' }}>
+          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setModalCrearOpen(true)} sx={{ backgroundColor: verdePapelitos, '&:hover': { backgroundColor: '#143d22' }, borderRadius: '8px', textTransform: 'none' }}>
             Agregar Categoría
           </Button>
         )}
@@ -180,6 +183,20 @@ const Categorias = () => {
           </TableBody>
         </Table>
       </TableContainer>
+
+      <RegistrarCategoriaModal 
+        open={modalCrearOpen}
+        onClose={() => setModalCrearOpen(false)}
+        onSuccess={async () => {
+          // Refresca la tabla automáticamente consultando a Django
+          const response = await fetch(ENDPOINTS.INVENTARIO.CATEGORIAS);
+          if (response.ok) setCategorias(await response.json());
+          
+          // Muestra la alerta verde de éxito
+          setAlertaGlobal({ tipo: 'success', mensaje: 'Categoría guardada correctamente.' });
+          setTimeout(() => setAlertaGlobal({ tipo: '', mensaje: '' }), 3000);
+        }}
+      />
 
       {/* LLAMADA AL COMPONENTE HIJO (MODAL) */}
       {categoriaSeleccionada && (

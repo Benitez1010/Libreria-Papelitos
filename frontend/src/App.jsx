@@ -2,7 +2,6 @@ import { Routes, Route } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Usuarios from './pages/Usuarios/Usuarios';
-import RegistrarCategoria from './pages/Categorias/RegistrarCategoria';
 import RegistrarProducto from './pages/Productos/RegistrarProducto';
 import RutaPrivada from './components/RutaPrivada';
 import Login from './pages/Login/Login';
@@ -12,6 +11,7 @@ import UsuarioAcceso from './pages/Configuracion/UsuarioAcceso';
 import AccesoRol from './pages/Configuracion/AccesoRol';
 import ProtectorRuta from './components/ProtectorRuta'; // Ajusta la ruta si es necesario
 import ControlInactividad from './components/ControlInactividad';
+import RegistrarMovimiento from './pages/Productos/RegistrarMovimiento';
 
 function App() {
   return (
@@ -45,11 +45,6 @@ function App() {
             </ProtectorRuta>
           } />
 
-          <Route path="categorias/nuevo" element={
-            <ProtectorRuta modulo="categorias">
-              <RegistrarCategoria />
-            </ProtectorRuta>
-          } />
           <Route path="categorias/editar/:id" element={
             <ProtectorRuta modulo="categorias">
               <EditarCategoria />
@@ -71,7 +66,7 @@ function App() {
           } />
 
           
-
+          <Route path="inventario/movimiento" element={<RegistrarMovimiento />} />
           
           <Route path="productos/nuevo" element={<RegistrarProducto />} />
           
