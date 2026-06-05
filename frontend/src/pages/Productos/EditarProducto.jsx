@@ -154,8 +154,8 @@ const EditarProducto = () => {
             {/* Configuración de Parámetro de Alerta (ALT-03) */}
             <Grid item xs={12}>
               <Box sx={{ p: 3, backgroundColor: 'rgba(211, 47, 47, 0.05)', borderRadius: '8px', borderLeft: '4px solid #d32f2f' }}>
-                <Typography variant="h6" color="#d32f2f" fontWeight="bold" mb={4}>
-                  Parámetros de Alerta
+                <Typography variant="h6" sx={{ color: '#d32f2f', fontWeight: 'bold', mb: 3, display: 'block' }}>
+                Parámetros de Alerta
                 </Typography>
                 <TextField
                   fullWidth

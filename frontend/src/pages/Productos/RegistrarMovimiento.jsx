@@ -8,6 +8,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import SendIcon from '@mui/icons-material/Send';
 import InventoryIcon from '@mui/icons-material/Inventory';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { ENDPOINTS } from '../../services/api';
 import AlertaStockCritico from '../../components/AlertaStockCritico';
@@ -202,7 +203,16 @@ const RegistrarMovimiento = () => {
     <Box sx={{ p: 4, maxWidth: 900, mx: 'auto' }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: '12px' }}>
         
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+          
+          <Button 
+            startIcon={<ArrowBackIcon />} 
+            onClick={() => navigate(-1)}
+            sx={{ color: '#555', mr: 2 }}
+          >
+            Volver
+          </Button>
+
           <InventoryIcon sx={{ color: verdePapelitos, fontSize: 40 }} />
           <Typography variant="h4" fontWeight="bold" color={verdePapelitos}>
             {configContexto.titulo}
