@@ -13,6 +13,7 @@ import ProtectorRuta from './components/ProtectorRuta'; // Ajusta la ruta si es 
 import ControlInactividad from './components/ControlInactividad';
 import RegistrarMovimiento from './pages/Productos/RegistrarMovimiento';
 import ListaProductos from './pages/Productos/ListaProductos';
+import EditarProducto from './pages/Productos/EditarProducto';
 
 function App() {
   return (
@@ -71,6 +72,7 @@ function App() {
           
           <Route path="productos/nuevo" element={<RegistrarProducto />} />
           <Route path="productos" element={<ListaProductos />} /> 
+          <Route path="productos/editar/:id" element={<EditarProducto />} />
           
         </Route>
       </Route>

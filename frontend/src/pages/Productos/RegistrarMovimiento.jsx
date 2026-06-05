@@ -10,6 +10,7 @@ import SendIcon from '@mui/icons-material/Send';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { ENDPOINTS } from '../../services/api';
+import AlertaStockCritico from '../../components/AlertaStockCritico';
 
 const RegistrarMovimiento = () => {
   const [searchParams] = useSearchParams();
@@ -21,7 +22,8 @@ const RegistrarMovimiento = () => {
   const [alerta, setAlerta] = useState({ tipo: '', mensaje: '' });
   const [justificacion, setJustificacion] = useState('');
   const [lineasMovimiento, setLineasMovimiento] = useState([]);
-
+  const [alertaStockEmergente, setAlertaStockEmergente] = useState({ open: false, productos: [] });
+  
   // MATRIZ DE CONFIGURACIÓN DINÁMICA (CORREGIDA: Sin el contexto 'salida')
   const configContexto = {
     venta: { titulo: 'Despacho definitivo (Venta)', tipoAPI: 'venta', origenFijo: 'VITRINA', destinoFijo: 'EXTERNO', muestraUbicacion: false, requereJustificacion: false },
@@ -163,6 +165,7 @@ const RegistrarMovimiento = () => {
       const data = await response.json();
 
       if (response.ok) {
+        // --- 1. Lógica de éxito tradicional ---
         setAlerta({ tipo: 'success', mensaje: data.message });
         setJustificacion('');
         await cargarProductosDelCatálogo();
@@ -172,6 +175,19 @@ const RegistrarMovimiento = () => {
           origen: configContexto.origenFijo || '', 
           destino: configContexto.destinoFijo || '' 
         }]);
+
+        // --- 2. Lógica nueva: Disparar pop-up de stock crítico ---
+        if (data.detalles_procesados) {
+          // Filtramos solo los productos que Django nos indicó que requieren alerta
+          const productosCriticos = data.detalles_procesados
+            .filter(item => item.requiere_alerta)
+            .map(item => item.producto);
+
+          // Si hay al menos uno, abrimos el pop-up emergente
+          if (productosCriticos.length > 0) {
+            setAlertaStockEmergente({ open: true, productos: productosCriticos });
+          }
+        }
       } else {
         setAlerta({ tipo: 'error', mensaje: data.message || 'Error al procesar la transacción.' });
       }
@@ -347,6 +363,17 @@ const RegistrarMovimiento = () => {
           </Box>
         </form>
       </Paper>
+      
+      <AlertaStockCritico 
+        open={alertaStockEmergente.open} 
+        onClose={(event, reason) => {
+          if (reason !== 'clickaway') {
+            setAlertaStockEmergente({ ...alertaStockEmergente, open: false });
+          }
+        }} 
+        productos={alertaStockEmergente.productos} 
+      />        
+
     </Box>
   );
 };
