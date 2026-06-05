@@ -60,6 +60,9 @@ try {
         setNombre('');
         setCategoriaId('');
         setCantidadInicial(0);
+        setTimeout(() => {
+          navigate('/productos');
+        }, 1500);
       } else {
         // Evaluamos el tipo de error directo que configuramos en Django
         if (data.error_type === "PRODUCTO_DUPLICADO") {
