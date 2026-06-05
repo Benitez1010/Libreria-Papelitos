@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Drawer, List, ListItemButton, ListItemIcon, ListItemText, 
-  Collapse, Box, Avatar, Typography, Button 
+  Collapse, Box, Typography, Button, Tooltip 
 } from '@mui/material';
 import { 
   Home, ExpandLess, ExpandMore, Inventory, Category, 
@@ -11,9 +11,8 @@ import {
 import { Link, useNavigate } from 'react-router-dom';
 import { ENDPOINTS } from '../services/api';
 
-const SidebarContent = ({ openAdmin, setOpenAdmin, openConfig, setOpenConfig, onLogout, usuarioInfo }) => {
+const SidebarContent = ({ openAdmin, setOpenAdmin, openConfig, setOpenConfig, onLogout, usuarioInfo, desktopOpen, setDesktopOpen }) => {
   
-  // --- LÓGICA DE PERMISOS RESTAURADA ---
   const esAdmin = usuarioInfo?.rol === 'Administrador' || usuarioInfo?.rol === 'ADMIN';
   const permisos = usuarioInfo?.permisos || {};
   
@@ -30,67 +29,124 @@ const SidebarContent = ({ openAdmin, setOpenAdmin, openConfig, setOpenConfig, on
   const mostrarCategoriaAdmin = verArticulos || verCategorias || verAlmacenamiento || verMovimientos || verControlInventario;
   const mostrarCategoriaConfig = verUsuarios || verRoles || verAccesoRol;
 
+  const handleMenuClick = (setter, currentState) => {
+    if (!desktopOpen) {
+      setDesktopOpen(true);
+      setter(true);
+    } else {
+      setter(!currentState);
+    }
+  };
+
+  // Subcomponente perfeccionado para alinear los íconos al centro matemático
+  const NavItem = ({ to, icon, text, isSubmenu = false }) => {
+    // Clonamos el ícono para forzarle un tamaño mayor cuando está contraído (de 24px a 28px)
+    const styledIcon = React.cloneElement(icon, {
+      sx: { 
+        ...icon.props.sx, 
+        fontSize: desktopOpen ? (isSubmenu ? 22 : 24) : 28, 
+        transition: 'all 0.3s ease' 
+      }
+    });
+
+    return (
+      <Tooltip title={!desktopOpen ? text : ""} placement="right" arrow>
+        <ListItemButton 
+          component={to ? Link : 'div'} 
+          to={to} 
+          sx={{ 
+            minHeight: 48, // Fija un alto consistente para que no se vean apachurrados
+            justifyContent: desktopOpen ? 'initial' : 'center',
+            px: 2.5, // Padding estricto para forzar centrado horizontal perfecto
+            pl: desktopOpen && isSubmenu ? 4 : 2.5, // Solo aplica sangría si está expandido
+          }}
+        >
+          <ListItemIcon sx={{ minWidth: 0, mr: desktopOpen ? 2 : 'auto', justifyContent: 'center' }}>
+            {styledIcon}
+          </ListItemIcon>
+          <ListItemText 
+            primary={text} 
+            sx={{ 
+              opacity: desktopOpen ? 1 : 0, 
+              transition: 'opacity 0.3s',
+              display: desktopOpen ? 'block' : 'none',
+              whiteSpace: 'nowrap'
+            }} 
+          />
+        </ListItemButton>
+      </Tooltip>
+    );
+  };
+
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', overflowX: 'hidden' }}>
       <Box>
-        <Box sx={{ p: 3, textAlign: 'center', borderBottom: '1px solid #2C7A4B', backgroundColor: 'rgba(44, 122, 75, 0.3)' }}>
+        <Box sx={{ p: desktopOpen ? 3 : 2, textAlign: 'center', borderBottom: '1px solid #2C7A4B', backgroundColor: 'rgba(44, 122, 75, 0.3)', transition: 'all 0.3s ease' }}>
           <Box 
             sx={{ 
-              width: 50, 
-              height: 50, 
+              width: desktopOpen ? 50 : 42, // Avatar más equilibrado
+              height: desktopOpen ? 50 : 42, 
               borderRadius: '50%', 
               backgroundColor: '#2C7A4B',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               margin: '0 auto',
-              mb: 1.5,
-              border: '2px solid #A3C4AC'
+              mb: desktopOpen ? 1.5 : 0,
+              border: '2px solid #A3C4AC',
+              transition: 'all 0.3s ease'
             }}
           >
-            <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold' }}>
+            <Typography variant={desktopOpen ? "h6" : "body1"} sx={{ color: 'white', fontWeight: 'bold' }}>
               {usuarioInfo ? usuarioInfo.username.charAt(0).toUpperCase() : '?'}
             </Typography>
           </Box>
-          <Typography variant="subtitle1" fontWeight="bold" sx={{ color: 'white' }}>
-            {usuarioInfo ? usuarioInfo.username : 'Cargando...'}
-          </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5, mt: 0.5 }}>
-            <Box 
-              sx={{ 
-                width: 8, 
-                height: 8, 
-                borderRadius: '50%', 
-                backgroundColor: '#4CAF50',
-                display: 'inline-block'
-              }} 
-            />
-            <Typography variant="body2" sx={{ color: '#A3C4AC' }}>
-              {usuarioInfo ? usuarioInfo.rol : ''}
-            </Typography>
-          </Box>
+          
+          {desktopOpen && (
+            <Box sx={{ animation: 'fadeIn 0.5s' }}>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ color: 'white', whiteSpace: 'nowrap' }}>
+                {usuarioInfo ? usuarioInfo.username : 'Cargando...'}
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5, mt: 0.5 }}>
+                <Box sx={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#4CAF50', display: 'inline-block' }} />
+                <Typography variant="body2" sx={{ color: '#A3C4AC', whiteSpace: 'nowrap' }}>
+                  {usuarioInfo ? usuarioInfo.rol : ''}
+                </Typography>
+              </Box>
+            </Box>
+          )}
         </Box>
 
-        <List sx={{ mt: 2 }}>
-          <ListItemButton component={Link} to="/">
-            <ListItemIcon><Home sx={{ color: 'white' }} /></ListItemIcon>
-            <ListItemText primary="Inicio" />
-          </ListItemButton>
+        <List sx={{ mt: 1 }}>
+          <NavItem to="/" icon={<Home sx={{ color: 'white' }} />} text="Inicio" />
 
           {mostrarCategoriaAdmin && (
             <>
-              <ListItemButton onClick={() => setOpenAdmin(!openAdmin)} sx={{ bgcolor: openAdmin ? '#2C7A4B' : 'transparent' }}>
-                <ListItemIcon><Assessment sx={{ color: 'white' }} /></ListItemIcon>
-                <ListItemText primary="Gestión Administrativa" />
-                {openAdmin ? <ExpandLess /> : <ExpandMore />}
-              </ListItemButton>
-              <Collapse in={openAdmin} timeout="auto" unmountOnExit>
+              <Tooltip title={!desktopOpen ? "Gestión Administrativa" : ""} placement="right" arrow>
+                <ListItemButton 
+                  onClick={() => handleMenuClick(setOpenAdmin, openAdmin)} 
+                  sx={{ 
+                    minHeight: 48,
+                    bgcolor: openAdmin && desktopOpen ? '#2C7A4B' : 'transparent',
+                    justifyContent: desktopOpen ? 'initial' : 'center',
+                    px: 2.5,
+                  }}
+                >
+                  <ListItemIcon sx={{ minWidth: 0, mr: desktopOpen ? 2 : 'auto', justifyContent: 'center' }}>
+                    <Assessment sx={{ color: 'white', fontSize: desktopOpen ? 24 : 28, transition: 'all 0.3s ease' }} />
+                  </ListItemIcon>
+                  <ListItemText primary="Gestión Administrativa" sx={{ opacity: desktopOpen ? 1 : 0, display: desktopOpen ? 'block' : 'none', whiteSpace: 'nowrap' }} />
+                  {desktopOpen && (openAdmin ? <ExpandLess sx={{ color: 'white' }} /> : <ExpandMore sx={{ color: 'white' }} />)}
+                </ListItemButton>
+              </Tooltip>
+              <Collapse in={openAdmin && desktopOpen} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
-                  {verArticulos && <ListItemButton component={Link} to="/productos" sx={{ pl: 4 }}><ListItemIcon><Inventory sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Listado de Artículos" /></ListItemButton>}
-                  {verCategorias && <ListItemButton component={Link} to="/categorias" sx={{ pl: 4 }}><ListItemIcon><Category sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Categorías" /></ListItemButton>}
-                  {verAlmacenamiento && <ListItemButton sx={{ pl: 4 }}><ListItemIcon><Storefront sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Área de almacenaje" /></ListItemButton>}
-                  {verMovimientos && <ListItemButton sx={{ pl: 4 }}><ListItemIcon><SyncAlt sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Movimientos" /></ListItemButton>}
-                  {verControlInventario && <ListItemButton sx={{ pl: 4 }}><ListItemIcon><Assessment sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Control de Inventario" /></ListItemButton>}
+                  {/* Simplificamos los íconos sin medidas estáticas para que el NavItem los manipule libremente */}
+                  {verArticulos && <NavItem to="/productos" icon={<Inventory sx={{ color: 'white' }} />} text="Listado de Artículos" isSubmenu />}
+                  {verCategorias && <NavItem to="/categorias" icon={<Category sx={{ color: 'white' }} />} text="Categorías" isSubmenu />}
+                  {verAlmacenamiento && <NavItem to="" icon={<Storefront sx={{ color: 'white' }} />} text="Área de almacenaje" isSubmenu />}
+                  {verMovimientos && <NavItem to="" icon={<SyncAlt sx={{ color: 'white' }} />} text="Movimientos" isSubmenu />}
+                  {verControlInventario && <NavItem to="" icon={<Assessment sx={{ color: 'white' }} />} text="Control de Inventario" isSubmenu />}
                 </List>
               </Collapse>
             </>
@@ -98,16 +154,28 @@ const SidebarContent = ({ openAdmin, setOpenAdmin, openConfig, setOpenConfig, on
 
           {mostrarCategoriaConfig && (
             <>
-              <ListItemButton onClick={() => setOpenConfig(!openConfig)} sx={{ bgcolor: openConfig ? '#2C7A4B' : 'transparent', mt: 1 }}>
-                <ListItemIcon><Settings sx={{ color: 'white' }} /></ListItemIcon>
-                <ListItemText primary="Configuración" />
-                {openConfig ? <ExpandLess /> : <ExpandMore />}
-              </ListItemButton>
-              <Collapse in={openConfig} timeout="auto" unmountOnExit>
+              <Tooltip title={!desktopOpen ? "Configuración" : ""} placement="right" arrow>
+                <ListItemButton 
+                  onClick={() => handleMenuClick(setOpenConfig, openConfig)} 
+                  sx={{ 
+                    minHeight: 48,
+                    bgcolor: openConfig && desktopOpen ? '#2C7A4B' : 'transparent', mt: 1,
+                    justifyContent: desktopOpen ? 'initial' : 'center',
+                    px: 2.5,
+                  }}
+                >
+                  <ListItemIcon sx={{ minWidth: 0, mr: desktopOpen ? 2 : 'auto', justifyContent: 'center' }}>
+                    <Settings sx={{ color: 'white', fontSize: desktopOpen ? 24 : 28, transition: 'all 0.3s ease' }} />
+                  </ListItemIcon>
+                  <ListItemText primary="Configuración" sx={{ opacity: desktopOpen ? 1 : 0, display: desktopOpen ? 'block' : 'none', whiteSpace: 'nowrap' }} />
+                  {desktopOpen && (openConfig ? <ExpandLess sx={{ color: 'white' }} /> : <ExpandMore sx={{ color: 'white' }} />)}
+                </ListItemButton>
+              </Tooltip>
+              <Collapse in={openConfig && desktopOpen} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
-                  {verUsuarios && <ListItemButton component={Link} to="/usuarios" sx={{ pl: 4 }}><ListItemIcon><Group sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Usuarios" /></ListItemButton>}
-                  {verRoles && <ListItemButton sx={{ pl: 4 }}><ListItemIcon><ManageAccounts sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Roles" /></ListItemButton>}
-                  {verAccesoRol && <ListItemButton component={Link} to="/Listadousuarios" sx={{ pl: 4 }}><ListItemIcon><Security sx={{ color: 'white', fontSize: 20 }} /></ListItemIcon><ListItemText primary="Acceso por Rol" /></ListItemButton>}
+                  {verUsuarios && <NavItem to="/usuarios" icon={<Group sx={{ color: 'white' }} />} text="Usuarios" isSubmenu />}
+                  {verRoles && <NavItem to="" icon={<ManageAccounts sx={{ color: 'white' }} />} text="Roles" isSubmenu />}
+                  {verAccesoRol && <NavItem to="/Listadousuarios" icon={<Security sx={{ color: 'white' }} />} text="Acceso por Rol" isSubmenu />}
                 </List>
               </Collapse>
             </>
@@ -115,29 +183,33 @@ const SidebarContent = ({ openAdmin, setOpenAdmin, openConfig, setOpenConfig, on
         </List>
       </Box>
 
-      <Box sx={{ p: 2, mt: 'auto' }}>
-        <Button
-          fullWidth
-          variant="outlined"
-          onClick={onLogout}
-          startIcon={<Logout />}
-          sx={{
-            color: 'white',
-            borderColor: '#2C7A4B',
-            '&:hover': { borderColor: 'white', backgroundColor: 'rgba(255,255,255,0.1)' },
-            textTransform: 'none',
-            justifyContent: 'flex-start',
-            pl: 2
-          }}
-        >
-          Cerrar Sesión
-        </Button>
+      {/* BOTÓN CERRAR SESIÓN */}
+      <Box sx={{ p: desktopOpen ? 2 : 1.5, mt: 'auto', display: 'flex', justifyContent: 'center' }}>
+        <Tooltip title={!desktopOpen ? "Cerrar Sesión" : ""} placement="right" arrow>
+          <Button
+            fullWidth={desktopOpen}
+            variant="outlined"
+            onClick={onLogout}
+            sx={{
+              color: 'white',
+              borderColor: desktopOpen ? '#2C7A4B' : 'transparent',
+              '&:hover': { borderColor: 'white', backgroundColor: 'rgba(255,255,255,0.1)' },
+              textTransform: 'none',
+              justifyContent: desktopOpen ? 'flex-start' : 'center',
+              px: desktopOpen ? 2 : 0,
+              minWidth: desktopOpen ? 'auto' : 48, // Asegura que no se aplaste el botón en modo cerrado
+            }}
+          >
+            <Logout sx={{ mr: desktopOpen ? 1 : 0, fontSize: desktopOpen ? 24 : 28, transition: 'all 0.3s ease' }} />
+            {desktopOpen && "Cerrar Sesión"}
+          </Button>
+        </Tooltip>
       </Box>
     </Box>
   );
 };
 
-const Sidebar = ({ mobileOpen, handleDrawerToggle, drawerWidth }) => {
+const Sidebar = ({ mobileOpen, handleDrawerToggle, drawerWidth, collapsedWidth, desktopOpen, setDesktopOpen }) => {
   const [openAdmin, setOpenAdmin] = useState(false);
   const [openConfig, setOpenConfig] = useState(false);
   const [usuarioInfo, setUsuarioInfo] = useState(null);
@@ -179,7 +251,14 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle, drawerWidth }) => {
   };
 
   return (
-    <Box component="nav" sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}>
+    <Box 
+      component="nav" 
+      sx={{ 
+        width: { md: desktopOpen ? drawerWidth : collapsedWidth }, 
+        flexShrink: { md: 0 },
+        transition: 'width 0.3s ease'
+      }}
+    >
       <Drawer
         variant="temporary"
         open={mobileOpen}
@@ -191,12 +270,11 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle, drawerWidth }) => {
         }}
       >
         <SidebarContent 
-          openAdmin={openAdmin} 
-          setOpenAdmin={setOpenAdmin} 
-          openConfig={openConfig} 
-          setOpenConfig={setOpenConfig} 
-          onLogout={handleLogout}
-          usuarioInfo={usuarioInfo}
+          openAdmin={openAdmin} setOpenAdmin={setOpenAdmin} 
+          openConfig={openConfig} setOpenConfig={setOpenConfig} 
+          onLogout={handleLogout} usuarioInfo={usuarioInfo}
+          desktopOpen={true} 
+          setDesktopOpen={() => {}}
         />
       </Drawer>
 
@@ -204,17 +282,23 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle, drawerWidth }) => {
         variant="permanent"
         sx={{
           display: { xs: 'none', md: 'block' },
-          '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth, backgroundColor: '#1E5631', color: 'white' },
+          '& .MuiDrawer-paper': { 
+            boxSizing: 'border-box', 
+            width: desktopOpen ? drawerWidth : collapsedWidth, 
+            backgroundColor: '#1E5631', 
+            color: 'white',
+            transition: 'width 0.3s ease',
+            overflowX: 'hidden'
+          },
         }}
         open
       >
         <SidebarContent 
-          openAdmin={openAdmin} 
-          setOpenAdmin={setOpenAdmin} 
-          openConfig={openConfig} 
-          setOpenConfig={setOpenConfig} 
-          onLogout={handleLogout}
-          usuarioInfo={usuarioInfo}
+          openAdmin={openAdmin} setOpenAdmin={setOpenAdmin} 
+          openConfig={openConfig} setOpenConfig={setOpenConfig} 
+          onLogout={handleLogout} usuarioInfo={usuarioInfo}
+          desktopOpen={desktopOpen}
+          setDesktopOpen={setDesktopOpen}
         />
       </Drawer>
     </Box>

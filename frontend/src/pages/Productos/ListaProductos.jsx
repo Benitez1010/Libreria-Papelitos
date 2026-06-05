@@ -4,7 +4,7 @@ import {
   Box, Typography, Alert, Paper, Table, TableBody, TableCell, 
   TableContainer, TableHead, TableRow, TextField, InputAdornment, 
   Button, IconButton, Tooltip, CircularProgress, FormControl, Select, 
-  MenuItem, TablePagination, ButtonGroup, Menu, Divider 
+  MenuItem, TablePagination, ButtonGroup 
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import EditIcon from '@mui/icons-material/Edit';
@@ -15,12 +15,7 @@ import PrintIcon from '@mui/icons-material/Print';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { ENDPOINTS } from '../../services/api';
-
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import SyncAltIcon from '@mui/icons-material/SyncAlt';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import LocalShippingIcon from '@mui/icons-material/LocalShipping';
-import BuildIcon from '@mui/icons-material/Build';
+import BotonTransacciones from '../../components/BotonTransacciones';
 
 const ListaProductos = () => {
   const navigate = useNavigate();
@@ -43,20 +38,6 @@ const ListaProductos = () => {
   
   // Control de errores / alertas
   const [alertaGlobal, setAlertaGlobal] = useState({ tipo: '', mensaje: '' });
-
-  const [anchorElMovimiento, setAnchorElMovimiento] = useState(null);
-  const openMenuMov = Boolean(anchorElMovimiento);
-
-  const handleClickMovimiento = (event) => {
-    setAnchorElMovimiento(event.currentTarget);
-  };
-  const handleCloseMovimiento = () => {
-    setAnchorElMovimiento(null);
-  };
-  const irARegistroMovimiento = (contexto) => {
-    setAnchorElMovimiento(null);
-    navigate(`/inventario/movimiento?contexto=${contexto}`); // <-- Navega inyectando el parámetro
-  };
 
   // Función principal de carga de datos
   const obtenerDatosInventario = async (esRecargaManual = false) => {
@@ -240,42 +221,8 @@ const ListaProductos = () => {
             </Button>
           </ButtonGroup>
 
-          {/* NUEVO: Botón Desplegable de Movimientos */}
-          <Button
-            variant="contained"
-            onClick={handleClickMovimiento}
-            startIcon={<SyncAltIcon />}
-            endIcon={<KeyboardArrowDownIcon />}
-            sx={{ backgroundColor: '#1565c0', '&:hover': { backgroundColor: '#0d47a1' }, borderRadius: '8px', textTransform: 'none' }}
-          >
-            Transacción
-          </Button>
-
-          {/* El Menú que se abre al hacer clic */}
-          <Menu
-            anchorEl={anchorElMovimiento}
-            open={openMenuMov}
-            onClose={handleCloseMovimiento}
-            transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-            anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-          >
-            <MenuItem onClick={() => irARegistroMovimiento('entrada')}>
-              <LocalShippingIcon sx={{ mr: 2, color: verdePapelitos }} /> Entrada de Proveedor
-            </MenuItem>
-            <MenuItem onClick={() => irARegistroMovimiento('venta')}>
-              <ShoppingCartIcon sx={{ mr: 2, color: '#1565c0' }} /> Despacho / Venta
-            </MenuItem>
-            <MenuItem onClick={() => irARegistroMovimiento('traslado')}>
-              <SyncAltIcon sx={{ mr: 2, color: '#ed6c02' }} /> Traslado Interno
-            </MenuItem>
-            <Divider />
-            <MenuItem onClick={() => irARegistroMovimiento('daño')}>
-              <BuildIcon sx={{ mr: 2, color: '#d32f2f' }} /> Ajuste por Daño/Merma
-            </MenuItem>
-            <MenuItem onClick={() => irARegistroMovimiento('correccion')}>
-              <BuildIcon sx={{ mr: 2, color: '#9c27b0' }} /> Corrección Administrativa
-            </MenuItem>
-          </Menu>
+          {/* COMPONENTE DE TRANSACCIONES INTEGRADO */}
+          <BotonTransacciones />
 
           {/* Tu botón original de Agregar Producto */}
           <Button 
