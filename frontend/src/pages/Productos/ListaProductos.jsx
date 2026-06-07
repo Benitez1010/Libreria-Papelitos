@@ -4,18 +4,19 @@ import {
   Box, Typography, Alert, Paper, Table, TableBody, TableCell, 
   TableContainer, TableHead, TableRow, TextField, InputAdornment, 
   Button, IconButton, Tooltip, CircularProgress, FormControl, Select, 
-  MenuItem, TablePagination, ButtonGroup 
+  MenuItem, TablePagination 
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import InventoryIcon from '@mui/icons-material/Inventory';
-import PrintIcon from '@mui/icons-material/Print';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { ENDPOINTS } from '../../services/api';
+
+// IMPORTACIONES DE TUS COMPONENTES REUTILIZABLES
 import BotonTransacciones from '../../components/BotonTransacciones';
+import BotonExportar from '../../components/BotonExportar';
 
 const ListaProductos = () => {
   const navigate = useNavigate();
@@ -212,14 +213,24 @@ const ListaProductos = () => {
         {/* Panel de Opciones Integrado y Botones de Acción */}
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
           
-          <ButtonGroup variant="outlined" aria-label="panel de opciones" sx={{ backgroundColor: '#fff' }}>
-            <Button startIcon={<PrintIcon />} sx={{ color: '#424242', borderColor: '#bdbdbd' }}>
-              Imprimir
-            </Button>
-            <Button onClick={handleRecargarTabla} startIcon={<RefreshIcon />} sx={{ color: '#424242', borderColor: '#bdbdbd' }}>
-              Recargar
-            </Button>
-          </ButtonGroup>
+          <Button 
+            onClick={handleRecargarTabla} 
+            variant="outlined" 
+            startIcon={<RefreshIcon />} 
+            sx={{ 
+              backgroundColor: '#fff', 
+              color: '#424242', 
+              borderColor: '#bdbdbd', 
+              textTransform: 'none', 
+              borderRadius: '8px',
+              '&:hover': { backgroundColor: '#f5f5f5', borderColor: '#9e9e9e' } 
+            }}
+          >
+            Recargar
+          </Button>
+
+          {/* COMPONENTE DE EXPORTACIÓN */}
+          <BotonExportar />
 
           {/* COMPONENTE DE TRANSACCIONES INTEGRADO */}
           <BotonTransacciones />
