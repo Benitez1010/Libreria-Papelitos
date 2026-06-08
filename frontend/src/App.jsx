@@ -2,7 +2,6 @@ import { Routes, Route } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Usuarios from './pages/Usuarios/Usuarios';
-import RegistrarProducto from './pages/Productos/RegistrarProducto';
 import RutaPrivada from './components/RutaPrivada';
 import Login from './pages/Login/Login';
 import EditarCategoria from './pages/Categorias/EditarCategoria'; 
@@ -70,7 +69,6 @@ function App() {
           
           <Route path="inventario/movimiento" element={<RegistrarMovimiento />} />
           
-          <Route path="productos/nuevo" element={<RegistrarProducto />} />
           <Route path="productos" element={<ListaProductos />} /> 
           <Route path="productos/editar/:id" element={<EditarProducto />} />
           

@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TextField, Button, Box, Typography, Alert, Paper, MenuItem, InputLabel, Select, FormControl } from '@mui/material';
+import { 
+  TextField, Button, Box, Typography, Alert, MenuItem, 
+  InputLabel, Select, FormControl, Dialog, DialogContent, DialogTitle, IconButton 
+} from '@mui/material';
 import LibraryAddIcon from '@mui/icons-material/LibraryAdd';
+import CloseIcon from '@mui/icons-material/Close';
 import { ENDPOINTS } from '../../services/api';
 
-const RegistrarProducto = () => {
+const RegistrarProductoModal = ({ open, onClose, onSuccess }) => {
   const navigate = useNavigate();
 
   // Estados del Formulario
@@ -16,10 +20,12 @@ const RegistrarProducto = () => {
   const [categorias, setCategorias] = useState([]);
   const [mensajeExito, setMensajeExito] = useState('');
   const [errorServidor, setErrorServidor] = useState('');
-  const [sugerenciaId, setSugerenciaId] = useState(null); // Guarda el ID si está duplicado
+  const [sugerenciaId, setSugerenciaId] = useState(null);
 
-  // Cargar categorías para el desplegable (Select)
+  // Cargar categorías para el desplegable (Select) cada vez que el modal se abre
   useEffect(() => {
+    if (!open) return;
+
     const obtenerCategorias = async () => {
       try {
         const response = await fetch(ENDPOINTS.INVENTARIO.CATEGORIAS);
@@ -32,9 +38,20 @@ const RegistrarProducto = () => {
       }
     };
     obtenerCategorias();
-  }, []);
+  }, [open]);
 
-  const handleSubmit = async (e) => {
+  // Limpieza total al cerrar el modal
+  const manejarCierre = () => {
+    setNombre('');
+    setCategoriaId('');
+    setCantidadInicial(0);
+    setMensajeExito('');
+    setErrorServidor('');
+    setSugerenciaId(null);
+    onClose();
+  };
+
+const handleSubmit = async (e) => {
     e.preventDefault();
     setMensajeExito('');
     setErrorServidor('');
@@ -45,29 +62,39 @@ const RegistrarProducto = () => {
       categoria: categoriaId,
       cantidad_inicial: parseInt(cantidadInicial, 10)
     };
-try {
+
+    try {
       const response = await fetch(ENDPOINTS.INVENTARIO.PRODUCTOS, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(productoPayload),
       });
 
-      const data = await response.json();
-
+      // Validamos la respuesta antes de intentar transformarla a JSON
       if (response.ok) {
-        // Criterio de Aceptación: Mensaje de confirmación verde
+        const data = await response.json();
         setMensajeExito(data.message || "Producto registrado con éxito.");
+        
+        // CORRECCIÓN: Limpiamos los inputs del formulario de inmediato
         setNombre('');
         setCategoriaId('');
         setCantidadInicial(0);
+
+        // Dejamos que el usuario vea el mensaje verde por 1 segundo, luego cerramos y refrescamos
         setTimeout(() => {
-          navigate('/productos');
-        }, 1500);
+          // 1. Cerramos el modal limpiamente llamando a la función local
+          manejarCierre();
+          
+          // 2. Una vez cerrado, le avisamos al padre que refresque la tabla sin interferencias
+          if (onSuccess) onSuccess();
+        }, 1200);
+
       } else {
-        // Evaluamos el tipo de error directo que configuramos en Django
+        // Si la respuesta no es OK, procesamos los errores controlados de Django
+        const data = await response.json();
         if (data.error_type === "PRODUCTO_DUPLICADO") {
           setErrorServidor(data.message);
-          setSugerenciaId(data.producto_id); // Activamos el botón amarillo de sugerencia
+          setSugerenciaId(data.producto_id);
         } else if (data.errors?.nombre) {
           setErrorServidor(`Error en el nombre: ${data.errors.nombre[0]}`);
         } else {
@@ -75,20 +102,32 @@ try {
         }
       }
     } catch (error) {
+      // Este bloque no se disparará falsamente porque la recarga ocurre POST-cierre
       setErrorServidor("Error de conexión con el servidor backend.");
     }
   };
+
   return (
-    <Box sx={{ maxWidth: 550, mx: 'auto', mt: 4 }}>
-      <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
-        
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 3, gap: 1 }}>
-          <LibraryAddIcon color="success" fontSize="large" />
-          <Typography variant="h5" component="h1" fontWeight="bold">
+    <Dialog 
+      open={open} 
+      onClose={manejarCierre}
+      fullWidth
+      maxWidth="xs" // Mantiene una anchura compacta de formulario
+    >
+      {/* Título superior con botón X de cierre */}
+      <DialogTitle sx={{ m: 0, p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <LibraryAddIcon color="success" />
+          <Typography variant="h6" fontWeight="bold">
             Registrar Producto
           </Typography>
         </Box>
+        <IconButton onClick={manejarCierre} aria-label="close" size="small">
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
 
+      <DialogContent dividers sx={{ p: 3 }}>
         {mensajeExito && <Alert severity="success" sx={{ mb: 2 }}>{mensajeExito}</Alert>}
         
         {errorServidor && (
@@ -100,9 +139,13 @@ try {
                   variant="contained" 
                   color="warning" 
                   size="small"
-                  onClick={() => navigate(``)} // Aquí iría la ruta real para actualizar stock, usando sugerenciaId
+                  onClick={() => {
+                    manejarCierre();
+                    // Redirige dinámicamente usando el contexto de inventario
+                    navigate(`/inventario/movimiento?contexto=entrada`); 
+                  }}
                 >
-                  Ir a Actualizar Stock
+                  Ir a Entrada de Inventario
                 </Button>
               </Box>
             )}
@@ -117,13 +160,13 @@ try {
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
             required
-            sx={{ mb: 2.5 }}
+            sx={{ mb: 2.5, mt: 1 }}
           />
 
           <FormControl fullWidth required sx={{ mb: 2.5 }}>
-            <InputLabel id="categoria-select-label">Categoría</InputLabel>
+            <InputLabel id="modal-categoria-select-label">Categoría</InputLabel>
             <Select
-              labelId="categoria-select-label"
+              labelId="modal-categoria-select-label"
               label="Categoría"
               value={categoriaId}
               onChange={(e) => setCategoriaId(e.target.value)}
@@ -154,13 +197,14 @@ try {
             variant="contained"
             color="success"
             size="large"
+            sx={{ textTransform: 'none', borderRadius: '8px' }}
           >
             Registrar en Catálogo
           </Button>
         </form>
-      </Paper>
-    </Box>
+      </DialogContent>
+    </Dialog>
   );
 };
 
-export default RegistrarProducto;
+export default RegistrarProductoModal;

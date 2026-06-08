@@ -13,8 +13,9 @@ import AddIcon from '@mui/icons-material/Add';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { ENDPOINTS } from '../../services/api';
+import RegistrarProductoModal from './RegistrarProductoModal';
 
-// IMPORTACIONES DE TUS COMPONENTES REUTILIZABLES
+// IMPORTACIONES DE COMPONENTES REUTILIZABLES
 import BotonTransacciones from '../../components/BotonTransacciones';
 import BotonExportar from '../../components/BotonExportar';
 
@@ -39,6 +40,9 @@ const ListaProductos = () => {
   
   // Control de errores / alertas
   const [alertaGlobal, setAlertaGlobal] = useState({ tipo: '', mensaje: '' });
+
+    // modal de registro
+  const [modalAgregarOpen, setModalAgregarOpen] = useState(false);
 
   // Función principal de carga de datos
   const obtenerDatosInventario = async (esRecargaManual = false) => {
@@ -235,10 +239,9 @@ const ListaProductos = () => {
           {/* COMPONENTE DE TRANSACCIONES INTEGRADO */}
           <BotonTransacciones />
 
-          {/* Tu botón original de Agregar Producto */}
+          {/* Botón original de Agregar Producto */}
           <Button 
-            component={Link}
-            to="/productos/nuevo"
+            onClick={() => setModalAgregarOpen(true)}
             variant="contained" 
             startIcon={<AddIcon />} 
             sx={{ backgroundColor: verdePapelitos, '&:hover': { backgroundColor: '#143d22' }, borderRadius: '8px', textTransform: 'none' }}
@@ -319,7 +322,16 @@ const ListaProductos = () => {
           labelDisplayedRows={({ from, to, count }) => `${from}–${to} de ${count !== -1 ? count : `más de ${to}`}`}
         />
       </Paper>
-
+   
+      <RegistrarProductoModal 
+        open={modalAgregarOpen}
+        onClose={() => setModalAgregarOpen(false)}
+        onSuccess={() => {
+          // Al llamarlo sin argumentos (o en false), recarga la data en background 
+          // sin desmontar la tabla ni activar el CircularProgress de pantalla completa
+          obtenerDatosInventario(false); 
+        }}
+      />
     </Box>
   );
 };
