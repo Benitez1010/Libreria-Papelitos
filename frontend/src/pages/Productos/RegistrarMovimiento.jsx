@@ -54,7 +54,7 @@ const RegistrarMovimiento = () => {
     setLineasMovimiento([
       { 
         producto_id: '', 
-        cantidad: 1, 
+        cantidad: '', 
         origen: configContexto.origenFijo || '', 
         destino: configContexto.destinoFijo || '' 
       }
@@ -75,7 +75,7 @@ const RegistrarMovimiento = () => {
   const handleAgregarFila = () => {
     setLineasMovimiento([...lineasMovimiento, { 
       producto_id: '', 
-      cantidad: 1, 
+      cantidad: '', 
       origen: configContexto.origenFijo || '', 
       destino: configContexto.destinoFijo || '' 
     }]);
@@ -144,8 +144,15 @@ const RegistrarMovimiento = () => {
       return;
     }
 
+    // Mapeamos primero para transformar cualquier cantidad vacía en un número 0 real
+    const lineasSaneadas = lineasMovimiento.map(linea => ({
+    ...linea,
+    cantidad: linea.cantidad === '' ? 0 : linea.cantidad
+    }));
+
     // Aplicamos la agrupación inteligente de filas
-    const lineasProcesadas = agruparLineasDuplicadas(lineasMovimiento);
+    const lineasProcesadas = agruparLineasDuplicadas(lineasSaneadas);
+    
 
     const payload = {
       tipo_contexto: configContexto.tipoAPI,
@@ -172,7 +179,7 @@ const RegistrarMovimiento = () => {
         await cargarProductosDelCatálogo();
         setLineasMovimiento([{ 
           producto_id: '', 
-          cantidad: 1, 
+          cantidad: '', 
           origen: configContexto.origenFijo || '', 
           destino: configContexto.destinoFijo || '' 
         }]);
@@ -286,7 +293,7 @@ const RegistrarMovimiento = () => {
                         type="number"
                         size="small"
                         value={linea.cantidad}
-                        onChange={(e) => handleCambioFila(index, 'cantidad', parseInt(e.target.value, 10) || 0)}
+                        onChange={(e) => handleCambioFila(index, 'cantidad', e.target.value === '' ? '' : (parseInt(e.target.value, 10) || 0))}
                         slotProps={{ htmlInput: { min: 1 } }}
                         required
                         fullWidth
