@@ -175,7 +175,7 @@ const Usuarios = () => {
   const usuariosFiltrados = usuarios.filter((usuario) =>
     usuario.username.toLowerCase().includes(busqueda.toLowerCase()) ||
     usuario.email.toLowerCase().includes(busqueda.toLowerCase())
-  );
+  ).sort((a, b) => a.username.localeCompare(b.username));
 
     const handleChangePage = (event, newPage) => {
     setPagina(newPage);
@@ -287,6 +287,7 @@ const Usuarios = () => {
              <TableRow sx={{ backgroundColor: '#1E5631' }}>
               <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>ID</TableCell>
               <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Usuario</TableCell>
+              <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Nombre Completo</TableCell>
               <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Correo Electrónico</TableCell>
               <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Rol</TableCell>
               <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Estado</TableCell>
@@ -301,8 +302,9 @@ const Usuarios = () => {
                 <TableRow key={usuario.id} sx={{ '&:hover': { backgroundColor: 'rgba(30, 86, 49, 0.05)' } }}>
                 <TableCell>{usuario.id}</TableCell>
                 <TableCell sx={{ fontWeight: 500 }}>{usuario.username}</TableCell>
-                <TableCell sx={{ fontStyle: usuario.rol === 'ADMIN' ? 'italic' : 'normal', color: usuario.rol === 'ADMIN' ? '#999' : 'inherit' }}>
-                  {usuario.rol === 'ADMIN' ? '—' : (usuario.email || '—')}
+                <TableCell>{usuario.nombre_completo || '—'}</TableCell>
+                <TableCell sx={{ fontStyle: usuario.rol === 'ADMIN' ? 'arial' : 'normal', color: usuario.rol === 'ADMIN' ? '#000000' : 'inherit' }}>
+                  {(usuario.email || '—')}
                 </TableCell>
                 <TableCell>
                   <Chip label={usuario.rol_display || usuario.rol} color={getColorRol(usuario.rol)} size="small" sx={{ fontWeight: 500 }} />
@@ -511,8 +513,8 @@ const Usuarios = () => {
       </Dialog>
 
       {/* ========== SNACKBAR ========== */}
-      <Snackbar open={snackbar.abierto} autoHideDuration={4000} onClose={cerrarSnackbar} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
-        <Alert onClose={cerrarSnackbar} severity={snackbar.tipo} sx={{ borderRadius: 2 }}>
+      <Snackbar open={snackbar.abierto} autoHideDuration={4000} onClose={cerrarSnackbar} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+        <Alert onClose={cerrarSnackbar} severity={snackbar.tipo} variant="filled" sx={{ boxShadow: 3, borderRadius: '8px' }}>
           {snackbar.mensaje}
         </Alert>
       </Snackbar>
