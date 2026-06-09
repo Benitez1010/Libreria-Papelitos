@@ -54,7 +54,7 @@ const BotonTransacciones = () => {
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
         <MenuItem onClick={() => irARegistroMovimiento('entrada')}>
-          <LocalShippingIcon sx={{ mr: 2, color: verdePapelitos }} /> Entrada de Proveedor
+          <LocalShippingIcon sx={{ mr: 2, color: verdePapelitos }} /> Entrada de Mercadería
         </MenuItem>
         <MenuItem onClick={() => irARegistroMovimiento('venta')}>
           <ShoppingCartIcon sx={{ mr: 2, color: '#1565c0' }} /> Despacho / Venta

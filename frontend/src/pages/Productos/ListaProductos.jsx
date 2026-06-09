@@ -41,7 +41,7 @@ const ListaProductos = () => {
   // Control de errores / alertas
   const [alertaGlobal, setAlertaGlobal] = useState({ tipo: '', mensaje: '' });
 
-    // modal de registro
+  // Modal de registro
   const [modalAgregarOpen, setModalAgregarOpen] = useState(false);
 
   // Función principal de carga de datos
@@ -123,13 +123,12 @@ const ListaProductos = () => {
     setPage(0);
   };
 
-  // Lógica de filtrado en vivo
+  // Lógica de filtrado en vivo (sin evaluar el código)
   const productosFiltrados = productos.filter((producto) => {
     const termino = searchTerm.toLowerCase();
     const coincideBusqueda = 
       producto.nombre.toLowerCase().includes(termino) || 
-      String(producto.id).toLowerCase().includes(termino) ||
-      (producto.codigo && producto.codigo.toLowerCase().includes(termino));
+      String(producto.id).toLowerCase().includes(termino);
 
     const coincideCategoria = 
       filtroCategoria === '' || 
@@ -183,7 +182,7 @@ const ListaProductos = () => {
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexGrow: 1 }}>
           <TextField
             size="small"
-            placeholder="Buscar por ID, Código o Nombre..."
+            placeholder="Buscar por ID o Nombre..."
             value={searchTerm}
             onChange={handleSearchChange}
             InputProps={{ 
@@ -258,7 +257,6 @@ const ListaProductos = () => {
             <TableHead sx={{ backgroundColor: verdePapelitos }}>
               <TableRow>
                 <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>ID</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>CÓDIGO</TableCell>
                 <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>NOMBRE DEL PRODUCTO</TableCell>
                 <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>CATEGORÍA</TableCell>
                 <TableCell align="center" sx={{ color: 'white', fontWeight: 'bold' }}>BODEGA</TableCell>
@@ -271,9 +269,6 @@ const ListaProductos = () => {
                 productosPaginados.map((producto) => (
                   <TableRow key={producto.id} hover>
                     <TableCell sx={{ fontWeight: 'bold' }}>#{producto.id}</TableCell>
-                    <TableCell sx={{ color: 'text.secondary', fontFamily: 'monospace' }}>
-                      {producto.codigo || '-'}
-                    </TableCell>
                     <TableCell>{producto.nombre}</TableCell>
                     <TableCell>{producto.categoria_nombre || producto.categoria}</TableCell>
                     
@@ -300,7 +295,7 @@ const ListaProductos = () => {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={7} sx={{ textAlign: 'center', py: 4, color: 'text.secondary' }}>
+                  <TableCell colSpan={6} sx={{ textAlign: 'center', py: 4, color: 'text.secondary' }}>
                     No se encontraron productos que coincidan con la búsqueda.
                   </TableCell>
                 </TableRow>
