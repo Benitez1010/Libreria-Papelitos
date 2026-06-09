@@ -94,9 +94,9 @@ const [modalCrearOpen, setModalCrearOpen] = useState(false);
     }
   };
 
-  const categoriasFiltradas = categorias.filter((cat) =>
-    cat.nombre.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const categoriasFiltradas = categorias
+    .filter((cat) => cat.nombre.toLowerCase().includes(searchTerm.toLowerCase()))
+    .sort((a, b) => a.nombre.localeCompare(b.nombre));
 
   // Validaciones booleanas para pintar o esconder la UI
   const puedeAgregar = esAdmin || permisos.categorias?.agregar;
