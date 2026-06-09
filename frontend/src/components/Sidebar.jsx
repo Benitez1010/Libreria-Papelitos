@@ -16,7 +16,7 @@ const SidebarContent = ({ openAdmin, setOpenAdmin, openConfig, setOpenConfig, on
   const esAdmin = usuarioInfo?.rol === 'Administrador' || usuarioInfo?.rol === 'ADMIN';
   const permisos = usuarioInfo?.permisos || {};
   
-  const verArticulos = esAdmin || permisos.articulos?.master === true;
+  const verProductos = esAdmin || permisos.productos?.master === true;
   const verCategorias = esAdmin || permisos.categorias?.master === true;
   const verAlmacenamiento = esAdmin || permisos.almacenamiento?.master === true;
   const verMovimientos = esAdmin || permisos.movimientos?.master === true;
@@ -26,7 +26,7 @@ const SidebarContent = ({ openAdmin, setOpenAdmin, openConfig, setOpenConfig, on
   const verRoles = esAdmin || permisos.roles?.master === true;
   const verAccesoRol = esAdmin || permisos.acceso_rol?.master === true;
 
-  const mostrarCategoriaAdmin = verArticulos || verCategorias || verAlmacenamiento || verMovimientos || verControlInventario;
+  const mostrarCategoriaAdmin = verProductos || verCategorias || verAlmacenamiento || verMovimientos || verControlInventario;
   const mostrarCategoriaConfig = verUsuarios || verRoles || verAccesoRol;
 
   const handleMenuClick = (setter, currentState) => {
@@ -142,7 +142,7 @@ const SidebarContent = ({ openAdmin, setOpenAdmin, openConfig, setOpenConfig, on
               <Collapse in={openAdmin && desktopOpen} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
                   {/* Simplificamos los íconos sin medidas estáticas para que el NavItem los manipule libremente */}
-                  {verArticulos && <NavItem to="/productos" icon={<Inventory sx={{ color: 'white' }} />} text="Listado de Artículos" isSubmenu />}
+                  {verProductos && <NavItem to="/productos" icon={<Inventory sx={{ color: 'white' }} />} text="Listado de Productos" isSubmenu />}
                   {verCategorias && <NavItem to="/categorias" icon={<Category sx={{ color: 'white' }} />} text="Categorías" isSubmenu />}
                   {verAlmacenamiento && <NavItem to="" icon={<Storefront sx={{ color: 'white' }} />} text="Área de almacenaje" isSubmenu />}
                   {verMovimientos && <NavItem to="" icon={<SyncAlt sx={{ color: 'white' }} />} text="Movimientos" isSubmenu />}
