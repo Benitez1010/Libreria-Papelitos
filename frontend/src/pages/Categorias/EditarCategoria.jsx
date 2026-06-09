@@ -37,7 +37,21 @@ const EditarCategoria = ({ open, onClose, categoria, onSuccess }) => {
         onSuccess(); // Avisa al padre que recargue la tabla
         onClose();   // Cierra el modal
       } else {
-        const errorMsg = data.nombre ? data.nombre[0] : "Error al actualizar la categoría.";
+        // --- AQUÍ ESTÁ EL TRUCO DE TRADUCCIÓN ---
+        let errorMsg = "Error al actualizar la categoría.";
+        
+        if (data.nombre && data.nombre[0]) {
+          const mensajeBackend = data.nombre[0].toLowerCase();
+          // Interceptamos cualquier variante de "ya existe" en inglés o español
+          if (mensajeBackend.includes("already exists") || mensajeBackend.includes("existe")) {
+            errorMsg = "Esta categoría ya se encuentra registrada.";
+          } else {
+            errorMsg = data.nombre[0];
+          }
+        } else if (typeof data === 'string') {
+          errorMsg = data;
+        }
+        
         setErrorModal(errorMsg);
       }
     } catch (error) {
