@@ -66,11 +66,24 @@ function App() {
             </ProtectorRuta>
           } />
 
+          {/* Rutas para productos y movimientos */}
+          <Route path="inventario/movimiento" element={<
+            ProtectorRuta modulo="movimientos">
+              <RegistrarMovimiento />
+            </ProtectorRuta>
+            } />
           
-          <Route path="inventario/movimiento" element={<RegistrarMovimiento />} />
-          
-          <Route path="productos" element={<ListaProductos />} /> 
-          <Route path="productos/editar/:id" element={<EditarProducto />} />
+          <Route path="productos" element={
+            <ProtectorRuta modulo="productos">
+              <ListaProductos />
+            </ProtectorRuta>
+          } />
+
+          <Route path="productos/editar/:id" element={
+            <ProtectorRuta modulo="productos">
+              <EditarProducto />
+            </ProtectorRuta>
+          } />
           
         </Route>
       </Route>

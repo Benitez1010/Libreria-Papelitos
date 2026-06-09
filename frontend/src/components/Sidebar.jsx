@@ -14,20 +14,12 @@ import { ENDPOINTS } from '../services/api';
 const SidebarContent = ({ openAdmin, setOpenAdmin, openConfig, setOpenConfig, onLogout, usuarioInfo, desktopOpen, setDesktopOpen }) => {
   
   const esAdmin = usuarioInfo?.rol === 'Administrador' || usuarioInfo?.rol === 'ADMIN';
-  const permisos = usuarioInfo?.permisos || {};
   
-  const verProductos = esAdmin || permisos.productos?.master === true;
-  const verCategorias = esAdmin || permisos.categorias?.master === true;
-  const verAlmacenamiento = esAdmin || permisos.almacenamiento?.master === true;
-  const verMovimientos = esAdmin || permisos.movimientos?.master === true;
-  const verControlInventario = esAdmin || permisos.control_inventario?.master === true;
+  // Gestión Administrativa: Siempre visible para todos los roles logueados
+  const mostrarCategoriaAdmin = true;
   
-  const verUsuarios = esAdmin || permisos.usuarios?.master === true;
-  const verRoles = esAdmin || permisos.roles?.master === true;
-  const verAccesoRol = esAdmin || permisos.acceso_rol?.master === true;
-
-  const mostrarCategoriaAdmin = verProductos || verCategorias || verAlmacenamiento || verMovimientos || verControlInventario;
-  const mostrarCategoriaConfig = verUsuarios || verRoles || verAccesoRol;
+  // Configuración: SOLO visible para el administrador
+  const mostrarCategoriaConfig = esAdmin;
 
   const handleMenuClick = (setter, currentState) => {
     if (!desktopOpen) {
@@ -40,7 +32,6 @@ const SidebarContent = ({ openAdmin, setOpenAdmin, openConfig, setOpenConfig, on
 
   // Subcomponente perfeccionado para alinear los íconos al centro matemático
   const NavItem = ({ to, icon, text, isSubmenu = false }) => {
-    // Clonamos el ícono para forzarle un tamaño mayor cuando está contraído (de 24px a 28px)
     const styledIcon = React.cloneElement(icon, {
       sx: { 
         ...icon.props.sx, 
@@ -55,10 +46,10 @@ const SidebarContent = ({ openAdmin, setOpenAdmin, openConfig, setOpenConfig, on
           component={to ? Link : 'div'} 
           to={to} 
           sx={{ 
-            minHeight: 48, // Fija un alto consistente para que no se vean apachurrados
+            minHeight: 48,
             justifyContent: desktopOpen ? 'initial' : 'center',
-            px: 2.5, // Padding estricto para forzar centrado horizontal perfecto
-            pl: desktopOpen && isSubmenu ? 4 : 2.5, // Solo aplica sangría si está expandido
+            px: 2.5,
+            pl: desktopOpen && isSubmenu ? 4 : 2.5,
           }}
         >
           <ListItemIcon sx={{ minWidth: 0, mr: desktopOpen ? 2 : 'auto', justifyContent: 'center' }}>
@@ -84,7 +75,7 @@ const SidebarContent = ({ openAdmin, setOpenAdmin, openConfig, setOpenConfig, on
         <Box sx={{ p: desktopOpen ? 3 : 2, textAlign: 'center', borderBottom: '1px solid #2C7A4B', backgroundColor: 'rgba(44, 122, 75, 0.3)', transition: 'all 0.3s ease' }}>
           <Box 
             sx={{ 
-              width: desktopOpen ? 50 : 42, // Avatar más equilibrado
+              width: desktopOpen ? 50 : 42, 
               height: desktopOpen ? 50 : 42, 
               borderRadius: '50%', 
               backgroundColor: '#2C7A4B',
@@ -141,12 +132,11 @@ const SidebarContent = ({ openAdmin, setOpenAdmin, openConfig, setOpenConfig, on
               </Tooltip>
               <Collapse in={openAdmin && desktopOpen} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
-                  {/* Simplificamos los íconos sin medidas estáticas para que el NavItem los manipule libremente */}
-                  {verProductos && <NavItem to="/productos" icon={<Inventory sx={{ color: 'white' }} />} text="Listado de Productos" isSubmenu />}
-                  {verCategorias && <NavItem to="/categorias" icon={<Category sx={{ color: 'white' }} />} text="Categorías" isSubmenu />}
-                  {verAlmacenamiento && <NavItem to="" icon={<Storefront sx={{ color: 'white' }} />} text="Área de almacenaje" isSubmenu />}
-                  {verMovimientos && <NavItem to="" icon={<SyncAlt sx={{ color: 'white' }} />} text="Movimientos" isSubmenu />}
-                  {verControlInventario && <NavItem to="" icon={<Assessment sx={{ color: 'white' }} />} text="Control de Inventario" isSubmenu />}
+                  <NavItem to="/productos" icon={<Inventory sx={{ color: 'white' }} />} text="Listado de Productos" isSubmenu />
+                  <NavItem to="/categorias" icon={<Category sx={{ color: 'white' }} />} text="Categorías" isSubmenu />
+                  <NavItem to="" icon={<Storefront sx={{ color: 'white' }} />} text="Área de almacenaje" isSubmenu />
+                  <NavItem to="" icon={<SyncAlt sx={{ color: 'white' }} />} text="Movimientos" isSubmenu />
+                  <NavItem to="" icon={<Assessment sx={{ color: 'white' }} />} text="Control de Inventario" isSubmenu />
                 </List>
               </Collapse>
             </>
@@ -173,9 +163,9 @@ const SidebarContent = ({ openAdmin, setOpenAdmin, openConfig, setOpenConfig, on
               </Tooltip>
               <Collapse in={openConfig && desktopOpen} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
-                  {verUsuarios && <NavItem to="/usuarios" icon={<Group sx={{ color: 'white' }} />} text="Usuarios" isSubmenu />}
-                  {verRoles && <NavItem to="" icon={<ManageAccounts sx={{ color: 'white' }} />} text="Roles" isSubmenu />}
-                  {verAccesoRol && <NavItem to="/Listadousuarios" icon={<Security sx={{ color: 'white' }} />} text="Acceso por Rol" isSubmenu />}
+                  <NavItem to="/usuarios" icon={<Group sx={{ color: 'white' }} />} text="Usuarios" isSubmenu />
+                  <NavItem to="" icon={<ManageAccounts sx={{ color: 'white' }} />} text="Roles" isSubmenu />
+                  <NavItem to="/Listadousuarios" icon={<Security sx={{ color: 'white' }} />} text="Acceso por Rol" isSubmenu />
                 </List>
               </Collapse>
             </>
@@ -183,7 +173,6 @@ const SidebarContent = ({ openAdmin, setOpenAdmin, openConfig, setOpenConfig, on
         </List>
       </Box>
 
-      {/* BOTÓN CERRAR SESIÓN */}
       <Box sx={{ p: desktopOpen ? 2 : 1.5, mt: 'auto', display: 'flex', justifyContent: 'center' }}>
         <Tooltip title={!desktopOpen ? "Cerrar Sesión" : ""} placement="right" arrow>
           <Button
@@ -197,7 +186,7 @@ const SidebarContent = ({ openAdmin, setOpenAdmin, openConfig, setOpenConfig, on
               textTransform: 'none',
               justifyContent: desktopOpen ? 'flex-start' : 'center',
               px: desktopOpen ? 2 : 0,
-              minWidth: desktopOpen ? 'auto' : 48, // Asegura que no se aplaste el botón en modo cerrado
+              minWidth: desktopOpen ? 'auto' : 48,
             }}
           >
             <Logout sx={{ mr: desktopOpen ? 1 : 0, fontSize: desktopOpen ? 24 : 28, transition: 'all 0.3s ease' }} />

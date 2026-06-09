@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { Box, CircularProgress } from '@mui/material';
 import { ENDPOINTS } from '../services/api';
 
 const ProtectorRuta = ({ children, modulo }) => {
   const [autorizado, setAutorizado] = useState(null);
+  const location = useLocation();
 
   useEffect(() => {
     const verificarPermiso = async () => {
@@ -15,21 +16,32 @@ const ProtectorRuta = ({ children, modulo }) => {
       }
 
       try {
-        // Consultamos al backend en tiempo real para evitar hackeos por localStorage
         const res = await fetch(`${ENDPOINTS.SEGURIDAD.LOGIN.replace('/login/', '')}/me/`, {
           headers: { 'Authorization': `Token ${token}` }
         });
         
         if (res.ok) {
           const data = await res.json();
-          const esAdmin = data.rol === 'ADMIN';
-          const permisos = data.permisos || {};
+          const rol = (data.rol || '').toUpperCase();
+          
+          const esAdmin = rol === 'ADMIN' || rol === 'ADMINISTRADOR';
+          const esOperativo = rol === 'BODEGA' || rol === 'CAJA';
 
-          // Si es Admin, o si el permiso de este módulo está en true, lo dejamos pasar
-          if (esAdmin || permisos[modulo]?.master === true) {
+          // Lista de módulos que los operativos SIEMPRE pueden ver
+          const modulosOperativos = [
+            'productos', 
+            'categorias', 
+            'almacenamiento', 
+            'movimientos', 
+            'control_inventario'
+          ];
+
+          if (esAdmin) {
+            setAutorizado(true);
+          } else if (esOperativo && modulosOperativos.includes(modulo)) {
             setAutorizado(true);
           } else {
-            setAutorizado(false); // No tiene permiso
+            setAutorizado(false);
           }
         } else {
           setAutorizado(false);
@@ -42,7 +54,6 @@ const ProtectorRuta = ({ children, modulo }) => {
     verificarPermiso();
   }, [modulo]);
 
-  // Mientras verifica en el backend, mostramos un loader de carga
   if (autorizado === null) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
@@ -51,8 +62,7 @@ const ProtectorRuta = ({ children, modulo }) => {
     );
   }
 
-  // Si está autorizado, mostramos la vista. Si no, lo mandamos al inicio ("/")
-  return autorizado ? children : <Navigate to="/" replace />;
+  return autorizado ? children : <Navigate to="/" replace state={{ from: location }} />;
 };
 
 export default ProtectorRuta;

@@ -29,6 +29,7 @@ const ListaProductos = () => {
   const [productos, setProductos] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [cargando, setCargando] = useState(true);
+  const [usuarioInfo, setUsuarioInfo] = useState(null); // Estado para permisos
   
   // Estados para Búsqueda y Filtro
   const [searchTerm, setSearchTerm] = useState('');
@@ -47,18 +48,25 @@ const ListaProductos = () => {
   // Función principal de carga de datos
   const obtenerDatosInventario = async (esRecargaManual = false) => {
     if (esRecargaManual) setCargando(true);
+    const token = localStorage.getItem('token');
     
     try {
-      const [respuestaProductos, respuestaCategorias] = await Promise.all([
+      const [respuestaProductos, respuestaCategorias, respuestaUsuario] = await Promise.all([
         fetch(ENDPOINTS.INVENTARIO.PRODUCTOS),
-        fetch(ENDPOINTS.INVENTARIO.CATEGORIAS)
+        fetch(ENDPOINTS.INVENTARIO.CATEGORIAS),
+        fetch(`${ENDPOINTS.SEGURIDAD.LOGIN.replace('/login/', '')}/me/`, {
+          headers: { 'Authorization': `Token ${token}` }
+        })
       ]);
 
-      if (respuestaProductos.ok && respuestaCategorias.ok) {
+      if (respuestaProductos.ok && respuestaCategorias.ok && respuestaUsuario.ok) {
         const datosProductos = await respuestaProductos.json();
         const datosCategorias = await respuestaCategorias.json();
+        const datosUsuario = await respuestaUsuario.json();
+        
         setProductos(datosProductos);
         setCategorias(datosCategorias);
+        setUsuarioInfo(datosUsuario);
         
         if (esRecargaManual) {
           setAlertaGlobal({ tipo: 'success', mensaje: 'Tabla actualizada con los últimos datos.' });
@@ -78,6 +86,11 @@ const ListaProductos = () => {
   useEffect(() => {
     obtenerDatosInventario();
   }, []);
+
+  // Lógica de Permisos
+  const esAdmin = usuarioInfo?.rol === 'ADMIN' || usuarioInfo?.rol === 'Administrador';
+  const puedeExportar = esAdmin;
+  const puedeGestionarProducto = esAdmin; // Agregar, Editar, Eliminar
 
   // Función del Botón "Recargar"
   const handleRecargarTabla = () => {
@@ -123,7 +136,7 @@ const ListaProductos = () => {
     setPage(0);
   };
 
-  // Lógica de filtrado en vivo (sin evaluar el código)
+  // Lógica de filtrado en vivo
   const productosFiltrados = productos.filter((producto) => {
     const termino = searchTerm.toLowerCase();
     const coincideBusqueda = 
@@ -232,21 +245,23 @@ const ListaProductos = () => {
             Recargar
           </Button>
 
-          {/* COMPONENTE DE EXPORTACIÓN */}
-          <BotonExportar />
+          {/* COMPONENTE DE EXPORTACIÓN (Solo Admin) */}
+          {puedeExportar && <BotonExportar />}
 
           {/* COMPONENTE DE TRANSACCIONES INTEGRADO */}
           <BotonTransacciones />
 
-          {/* Botón original de Agregar Producto */}
-          <Button 
-            onClick={() => setModalAgregarOpen(true)}
-            variant="contained" 
-            startIcon={<AddIcon />} 
-            sx={{ backgroundColor: verdePapelitos, '&:hover': { backgroundColor: '#143d22' }, borderRadius: '8px', textTransform: 'none' }}
-          >
-            Agregar Producto
-          </Button>
+          {/* Botón original de Agregar Producto (Solo Admin) */}
+          {puedeGestionarProducto && (
+            <Button 
+              onClick={() => setModalAgregarOpen(true)}
+              variant="contained" 
+              startIcon={<AddIcon />} 
+              sx={{ backgroundColor: verdePapelitos, '&:hover': { backgroundColor: '#143d22' }, borderRadius: '8px', textTransform: 'none' }}
+            >
+              Agregar Producto
+            </Button>
+          )}
         </Box>
       </Box>
 
@@ -261,7 +276,7 @@ const ListaProductos = () => {
                 <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>CATEGORÍA</TableCell>
                 <TableCell align="center" sx={{ color: 'white', fontWeight: 'bold' }}>BODEGA</TableCell>
                 <TableCell align="center" sx={{ color: 'white', fontWeight: 'bold' }}>VITRINA</TableCell>
-                <TableCell align="center" sx={{ color: 'white', fontWeight: 'bold' }}>ACCIONES</TableCell>
+                {puedeGestionarProducto && <TableCell align="center" sx={{ color: 'white', fontWeight: 'bold' }}>ACCIONES</TableCell>}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -279,23 +294,25 @@ const ListaProductos = () => {
                       {producto.stock_vitrina ?? 0}
                     </TableCell>
 
-                    <TableCell align="center">
-                      <Tooltip title="Editar Producto">
-                        <IconButton onClick={() => navigate(`/productos/editar/${producto.id}`)} sx={{ color: verdePapelitos, mr: 0.5 }}>
-                          <EditIcon />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Eliminar Producto">
-                        <IconButton onClick={() => handleEliminarProducto(producto.id)} sx={{ color: '#d32f2f' }}>
-                          <DeleteIcon />
-                        </IconButton>
-                      </Tooltip>
-                    </TableCell>
+                    {puedeGestionarProducto && (
+                      <TableCell align="center">
+                        <Tooltip title="Editar Producto">
+                          <IconButton onClick={() => navigate(`/productos/editar/${producto.id}`)} sx={{ color: verdePapelitos, mr: 0.5 }}>
+                            <EditIcon />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Eliminar Producto">
+                          <IconButton onClick={() => handleEliminarProducto(producto.id)} sx={{ color: '#d32f2f' }}>
+                            <DeleteIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={6} sx={{ textAlign: 'center', py: 4, color: 'text.secondary' }}>
+                  <TableCell colSpan={puedeGestionarProducto ? 6 : 5} sx={{ textAlign: 'center', py: 4, color: 'text.secondary' }}>
                     No se encontraron productos que coincidan con la búsqueda.
                   </TableCell>
                 </TableRow>
@@ -317,15 +334,11 @@ const ListaProductos = () => {
           labelDisplayedRows={({ from, to, count }) => `${from}–${to} de ${count !== -1 ? count : `más de ${to}`}`}
         />
       </Paper>
-   
+    
       <RegistrarProductoModal 
         open={modalAgregarOpen}
         onClose={() => setModalAgregarOpen(false)}
-        onSuccess={() => {
-          // Al llamarlo sin argumentos (o en false), recarga la data en background 
-          // sin desmontar la tabla ni activar el CircularProgress de pantalla completa
-          obtenerDatosInventario(false); 
-        }}
+        onSuccess={() => obtenerDatosInventario(false)} 
       />
     </Box>
   );

@@ -1,50 +1,54 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const ControlInactividad = ({ children }) => {
   const navigate = useNavigate();
+  const timerRef = useRef(null);
+
+  // TIEMPO DE CONFIGURACIÓN:
+  // 15 minutos en ms: 15 * 60 * 1000 = 900000
+  // PARA TESTEAR: Cambia 900000 por 5000 (5 segundos)
+  const INACTIVITY_TIME = 900000; 
 
   useEffect(() => {
-    let timeoutId;
-
     const cerrarSesion = () => {
-      // Borramos el token de seguridad
-      localStorage.removeItem('token');
-      
-      // Opcional: Mostrar un mensaje al usuario
-      alert("Tu sesión ha expirado por inactividad de 15 minutos.");
-      
-      // Redirigir al login
-      navigate('/login');
+      // Verificamos si aún hay sesión activa antes de redirigir
+      if (localStorage.getItem('token')) {
+        localStorage.removeItem('token');
+        alert("Tu sesión ha expirado por inactividad. Por seguridad, inicia sesión nuevamente.");
+        navigate('/login');
+      }
     };
 
     const resetTimer = () => {
-      // Si el usuario se mueve, cancelamos el temporizador anterior
-      clearTimeout(timeoutId);
+      // Limpiamos el contador existente para reiniciar el conteo
+      if (timerRef.current) clearTimeout(timerRef.current);
       
-      // Y creamos uno nuevo para 15 minutos (15 * 60 * 1000 = 900,000 milisegundos)
-      // 💡 TIP: Para probar que funciona ahorita, cambia 900000 por 5000 (5 segundos)
-      timeoutId = setTimeout(cerrarSesion, 900000); 
+      // Iniciamos un nuevo temporizador
+      timerRef.current = setTimeout(cerrarSesion, INACTIVITY_TIME);
     };
 
-    // Eventos que le dicen a React "el usuario está vivo y trabajando"
-    const eventos = ['mousemove', 'keydown', 'mousedown', 'touchstart', 'scroll'];
+    // Eventos que detectan actividad humana
+    const eventos = ['mousemove', 'keydown', 'mousedown', 'touchstart', 'scroll', 'wheel'];
 
-    // Le agregamos el detector a toda la ventana
-    eventos.forEach(evento => window.addEventListener(evento, resetTimer));
+    // Adjuntamos los listeners con { passive: true } para optimizar rendimiento
+    eventos.forEach(evento => 
+      window.addEventListener(evento, resetTimer, { passive: true })
+    );
 
-    // Iniciamos el temporizador la primera vez que carga
+    // Inicialización del contador al cargar el componente
     resetTimer();
 
-    // Limpiamos los eventos si el usuario sale del sistema manualmente
+    // Limpieza al desmontar el componente (evita fugas de memoria)
     return () => {
-      clearTimeout(timeoutId);
-      eventos.forEach(evento => window.removeEventListener(evento, resetTimer));
+      if (timerRef.current) clearTimeout(timerRef.current);
+      eventos.forEach(evento => 
+        window.removeEventListener(evento, resetTimer)
+      );
     };
   }, [navigate]);
 
-  // Este componente es invisible, solo devuelve las pantallas que envuelve
-  return children; 
+  return <>{children}</>;
 };
 
 export default ControlInactividad;

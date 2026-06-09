@@ -36,12 +36,21 @@ const Dashboard = () => {
   const [tabValue, setTabValue] = useState(0);
   const [productos, setProductos] = useState([]);
   const [cargando, setCargando] = useState(true);
+  const [usuarioInfo, setUsuarioInfo] = useState(null);
 
   const handleTabChange = (event, newValue) => setTabValue(newValue);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
+      const token = localStorage.getItem('token');
       try {
+        // Carga de usuario para roles
+        const resUser = await fetch(`${ENDPOINTS.SEGURIDAD.LOGIN.replace('/login/', '')}/me/`, {
+            headers: { 'Authorization': `Token ${token}` }
+        });
+        if(resUser.ok) setUsuarioInfo(await resUser.json());
+
+        // Carga de productos
         const response = await fetch(ENDPOINTS.INVENTARIO.PRODUCTOS);
         if (response.ok) {
           const data = await response.json();
@@ -56,21 +65,21 @@ const Dashboard = () => {
     fetchDashboardData();
   }, []); 
 
-  // ==========================================
-  // LÓGICAS MATEMÁTICAS DEL DASHBOARD
-  // ==========================================
-  
+  // Seguridad: Solo ADMIN y BODEGA ven la reposición
+  const esAdmin = usuarioInfo?.rol === 'Administrador' || usuarioInfo?.rol === 'ADMIN';
+  const esBodega = usuarioInfo?.rol === 'BODEGA';
+  const puedeVerReposicion = esAdmin || esBodega;
+
   // 1. Productos Agotados en su totalidad
   const productosAgotados = productos.filter(p => p.stock_total === 0);
   
-  // 2. Alertas Críticas y en Riesgo (Para compras a proveedores)
+  // 2. Alertas Críticas y en Riesgo
   const productosCriticos = productos.filter(p => p.stock_total > 0 && p.stock_total <= p.stock_minimo);
   const margenRiesgo = 5; 
   const productosEnRiesgo = productos.filter(p => p.stock_total > p.stock_minimo && p.stock_total <= (p.stock_minimo + margenRiesgo));
   const todasLasAlertas = [...productosAgotados, ...productosCriticos, ...productosEnRiesgo];
   
-  // 3. NUEVO: Sugerencias de Traslado Interno (Bodega a Vitrina)
-  // Agotados en mostrador, pero con existencias en el cuarto de bodega
+  // 3. Sugerencias de Traslado Interno
   const reposicionSugerida = productos.filter(p => p.stock_vitrina === 0 && p.stock_bodega > 0);
 
   // 4. Estadísticas Generales
@@ -91,7 +100,6 @@ const Dashboard = () => {
         Panel Principal
       </Typography>
 
-      {/* SISTEMA DE PESTAÑAS */}
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
         <Tabs 
           value={tabValue} 
@@ -102,45 +110,31 @@ const Dashboard = () => {
           }}
         >
           <Tab label="Resumen Operativo" />
-          
           <Tab 
             label={
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 Alertas de Compra
                 {todasLasAlertas.length > 0 && (
-                  <Chip 
-                    label={todasLasAlertas.length} 
-                    size="small" 
-                    color={productosCriticos.length > 0 || productosAgotados.length > 0 ? "error" : "warning"} 
-                    sx={{ height: 20, fontWeight: 'bold' }} 
-                  />
+                  <Chip label={todasLasAlertas.length} size="small" color={productosCriticos.length > 0 || productosAgotados.length > 0 ? "error" : "warning"} sx={{ height: 20, fontWeight: 'bold' }} />
                 )}
               </Box>
             } 
           />
-
-          {/* NUEVA PESTAÑA: Reposición Interna */}
-          <Tab 
-            label={
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                Reposición Interna
-                {reposicionSugerida.length > 0 && (
-                  <Chip 
-                    label={reposicionSugerida.length} 
-                    size="small" 
-                    color="info" 
-                    sx={{ height: 20, fontWeight: 'bold' }} 
-                  />
-                )}
-              </Box>
-            } 
-          />
+          {puedeVerReposicion && (
+            <Tab 
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  Reposición Interna
+                  {reposicionSugerida.length > 0 && (
+                    <Chip label={reposicionSugerida.length} size="small" color="info" sx={{ height: 20, fontWeight: 'bold' }} />
+                  )}
+                </Box>
+              } 
+            />
+          )}
         </Tabs>
       </Box>
 
-      {/* ==========================================
-          TAB 1: RESUMEN GENERAL
-          ========================================== */}
       <TabPanel value={tabValue} index={0}>
         <Grid container spacing={3} sx={{ mb: 4 }}>
           <Grid item xs={12} sm={6} md={3}>
@@ -154,7 +148,6 @@ const Dashboard = () => {
               </CardContent>
             </Card>
           </Grid>
-
           <Grid item xs={12} sm={6} md={3}>
             <Card sx={{ boxShadow: 2, borderRadius: 2, borderLeft: '5px solid #0288d1' }}>
               <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -166,7 +159,6 @@ const Dashboard = () => {
               </CardContent>
             </Card>
           </Grid>
-
           <Grid item xs={12} sm={6} md={3}>
             <Card sx={{ boxShadow: 2, borderRadius: 2, borderLeft: '5px solid #d32f2f' }}>
               <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -178,7 +170,6 @@ const Dashboard = () => {
               </CardContent>
             </Card>
           </Grid>
-
           <Grid item xs={12} sm={6} md={3}>
             <Card sx={{ boxShadow: 2, borderRadius: 2, borderLeft: '5px solid #ed6c02', opacity: 0.8 }}>
               <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -199,7 +190,6 @@ const Dashboard = () => {
                 <WarningAmberIcon sx={{ color: '#ed6c02' }} /> Top 5: Menor Disponibilidad
               </Typography>
               <Divider sx={{ mb: 2 }} />
-              
               <List disablePadding>
                 {top5MenorStock.length > 0 ? top5MenorStock.map((prod, index) => (
                   <React.Fragment key={prod.id}>
@@ -222,7 +212,6 @@ const Dashboard = () => {
               </List>
             </Paper>
           </Grid>
-          
           <Grid item xs={12} md={6}>
             <Paper elevation={2} sx={{ p: 3, borderRadius: 3, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f5f5f5' }}>
               <TrendingUpIcon sx={{ fontSize: 60, color: '#bdbdbd', mb: 2 }} />
@@ -235,9 +224,6 @@ const Dashboard = () => {
         </Grid>
       </TabPanel>
 
-      {/* ==========================================
-          TAB 2: ALERTAS DE COMPRA (PROVEEDORES)
-          ========================================== */}
       <TabPanel value={tabValue} index={1}>
         <Box sx={{ mb: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
           {productosCriticos.length > 0 && (
@@ -251,7 +237,6 @@ const Dashboard = () => {
             </Alert>
           )}
         </Box>
-
         <TableContainer component={Paper} elevation={3} sx={{ borderRadius: '12px' }}>
           <Table>
             <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
@@ -267,20 +252,8 @@ const Dashboard = () => {
             <TableBody>
               {todasLasAlertas.length > 0 ? (
                 todasLasAlertas.sort((a, b) => a.stock_total - b.stock_total).map((producto) => {
-                  let estadoTexto = "";
-                  let estadoColor = "";
-                  
-                  if (producto.stock_total === 0) {
-                    estadoTexto = "Agotado";
-                    estadoColor = "error";
-                  } else if (producto.stock_total <= producto.stock_minimo) {
-                    estadoTexto = "Crítico";
-                    estadoColor = "error";
-                  } else {
-                    estadoTexto = "En Riesgo";
-                    estadoColor = "warning";
-                  }
-
+                  let estadoTexto = producto.stock_total === 0 ? "Agotado" : (producto.stock_total <= producto.stock_minimo ? "Crítico" : "En Riesgo");
+                  let estadoColor = producto.stock_total === 0 ? "error" : (producto.stock_total <= producto.stock_minimo ? "error" : "warning");
                   return (
                     <TableRow key={producto.id} hover>
                       <TableCell sx={{ color: 'text.secondary' }}>#{producto.id}</TableCell>
@@ -300,9 +273,7 @@ const Dashboard = () => {
                 <TableRow>
                   <TableCell colSpan={6} align="center" sx={{ py: 5 }}>
                     <NotificationsActiveIcon sx={{ fontSize: 50, color: '#a5d6a7', mb: 1 }} />
-                    <Typography variant="subtitle1" color="textSecondary">
-                      Todo en orden. No hay productos críticos ni en riesgo actualmente.
-                    </Typography>
+                    <Typography variant="subtitle1" color="textSecondary">Todo en orden.</Typography>
                   </TableCell>
                 </TableRow>
               )}
@@ -311,72 +282,41 @@ const Dashboard = () => {
         </TableContainer>
       </TabPanel>
 
-      {/* ==========================================
-          TAB 3: REPOSICIÓN INTERNA (BODEGA VS VITRINA)
-          ========================================== */}
-      <TabPanel value={tabValue} index={2}>
-        <Box sx={{ mb: 3 }}>
-          <Alert severity="info" icon={<StorefrontIcon fontSize="inherit" />}>
-            <strong>Oportunidad de Ventas:</strong> Los siguientes productos se han agotado en la vitrina, pero cuentan con existencias en la bodega. Se sugiere realizar un traslado interno.
-          </Alert>
-        </Box>
-
-        <TableContainer component={Paper} elevation={3} sx={{ borderRadius: '12px' }}>
-          <Table>
-            <TableHead sx={{ backgroundColor: '#e3f2fd' }}>
-              <TableRow>
-                <TableCell sx={{ fontWeight: 'bold', color: '#0277bd' }}>PRODUCTO</TableCell>
-                <TableCell align="center" sx={{ fontWeight: 'bold', color: '#0277bd' }}>STOCK EN VITRINA</TableCell>
-                <TableCell align="center" sx={{ fontWeight: 'bold', color: '#0277bd' }}>DISPONIBLE EN BODEGA</TableCell>
-                <TableCell align="center" sx={{ fontWeight: 'bold', color: '#0277bd' }}>ACCIÓN RECOMENDADA</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {reposicionSugerida.length > 0 ? (
-                reposicionSugerida.map((producto) => (
+      {puedeVerReposicion && (
+        <TabPanel value={tabValue} index={2}>
+          <Box sx={{ mb: 3 }}>
+            <Alert severity="info" icon={<StorefrontIcon fontSize="inherit" />}>
+              <strong>Oportunidad de Ventas:</strong> Productos agotados en vitrina pero disponibles en bodega.
+            </Alert>
+          </Box>
+          <TableContainer component={Paper} elevation={3} sx={{ borderRadius: '12px' }}>
+            <Table>
+              <TableHead sx={{ backgroundColor: '#e3f2fd' }}>
+                <TableRow>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#0277bd' }}>PRODUCTO</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 'bold', color: '#0277bd' }}>STOCK EN VITRINA</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 'bold', color: '#0277bd' }}>DISPONIBLE EN BODEGA</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 'bold', color: '#0277bd' }}>ACCIÓN RECOMENDADA</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {reposicionSugerida.map((producto) => (
                   <TableRow key={producto.id} hover>
-                    <TableCell>
-                      <Typography fontWeight="bold">{producto.nombre}</Typography>
-                      <Typography variant="caption" color="textSecondary">{producto.categoria_nombre}</Typography>
-                    </TableCell>
-                    
+                    <TableCell><Typography fontWeight="bold">{producto.nombre}</Typography></TableCell>
+                    <TableCell align="center"><Chip label="Agotado" color="error" size="small" variant="outlined" /></TableCell>
+                    <TableCell align="center" sx={{ fontWeight: 'bold', color: '#1E5631' }}>{producto.stock_bodega} unidades</TableCell>
                     <TableCell align="center">
-                      <Chip label="Agotado" color="error" size="small" variant="outlined" />
-                    </TableCell>
-                    
-                    <TableCell align="center" sx={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#1E5631' }}>
-                      {producto.stock_bodega} unidades
-                    </TableCell>
-                    
-                    <TableCell align="center">
-                      {/* Este botón usa el enrutador para enviarlo directamente a hacer un traslado */}
-                      <Button 
-                        variant="contained" 
-                        size="small" 
-                        startIcon={<SyncAltIcon />}
-                        onClick={() => navigate('/inventario/movimiento?contexto=traslado')}
-                        sx={{ backgroundColor: '#0288d1', textTransform: 'none', borderRadius: '8px' }}
-                      >
+                      <Button variant="contained" size="small" startIcon={<SyncAltIcon />} onClick={() => navigate('/inventario/movimiento?contexto=traslado')} sx={{ backgroundColor: '#0288d1', textTransform: 'none', borderRadius: '8px' }}>
                         Hacer Traslado
                       </Button>
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={4} align="center" sx={{ py: 5 }}>
-                    <StorefrontIcon sx={{ fontSize: 50, color: '#90caf9', mb: 1 }} />
-                    <Typography variant="subtitle1" color="textSecondary">
-                      La vitrina está completamente abastecida. No hay traslados pendientes.
-                    </Typography>
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </TabPanel>
-
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </TabPanel>
+      )}
     </Box>
   );
 };
