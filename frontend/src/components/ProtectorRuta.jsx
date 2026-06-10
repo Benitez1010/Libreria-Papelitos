@@ -33,9 +33,8 @@ const ProtectorRuta = ({ children, modulo, accion = 'master' }) => {
 
           const pathActual = location.pathname.toLowerCase();
 
-          // ==============================================================
-          // 🛡️ REGLA 1: ADMINISTRADORES PASAN DIRECTO A TODO
-          // ==============================================================
+          //  REGLA 1: ADMINISTRADORES PASAN DIRECTO A TODO
+
           if (esAdmin) {
             setAutorizado(true);
             return;
@@ -43,18 +42,17 @@ const ProtectorRuta = ({ children, modulo, accion = 'master' }) => {
 
           // A PARTIR DE AQUÍ, SOLO LLEGAN CAJA Y BODEGA (OPERATIVOS)
 
-          // ==============================================================
-          // 🛡️ REGLA 2: BLOQUEO ESTRICTO DE RUTAS DE USUARIOS
-          // ==============================================================
+
+          // REGLA 2: BLOQUEO ESTRICTO DE RUTAS DE USUARIOS
+   
           // Bloquea localhost:5173/usuarios y localhost:5173/Listadousuarios
           if (pathActual.includes('usuario') || pathActual.includes('rol') || pathActual.includes('acceso')) {
             setAutorizado(false); 
             return;
           }
 
-          // ==============================================================
-          // 🛡️ REGLA 3: BLOQUEO ESTRICTO DE MOVIMIENTOS (URL PARAMS)
-          // ==============================================================
+          //  REGLA 3: BLOQUEO ESTRICTO DE MOVIMIENTOS (URL PARAMS)
+        
           const searchParams = new URLSearchParams(location.search);
           const contexto = (searchParams.get('contexto') || '').toLowerCase(); // Traduce da%C3%B1o a daño automáticamente
           const esVistaMovimiento = pathActual.includes('movimiento') || (modulo && modulo.toLowerCase().includes('movimiento'));
@@ -77,9 +75,8 @@ const ProtectorRuta = ({ children, modulo, accion = 'master' }) => {
             }
           }
 
-          // ==============================================================
-          // 🛡️ REGLA 4: PERMISOS PARA VER LAS TABLAS/CATÁLOGOS
-          // ==============================================================
+          //  REGLA 4: PERMISOS PARA VER LAS TABLAS/CATÁLOGOS
+         
           const modBase = modulo ? modulo.toLowerCase().replace(/s$/, '') : ''; 
           let permisosDelModulo = permisosBackend[modulo?.toLowerCase()] || permisosBackend[`${modBase}s`] || permisosBackend[modBase];
 

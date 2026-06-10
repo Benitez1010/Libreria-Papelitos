@@ -25,7 +25,7 @@ const Usuarios = () => {
   const [accion, setAccion] = useState('');
   const [snackbar, setSnackbar] = useState({ abierto: false, mensaje: '', tipo: 'success' });
 
-  // Estados para el modal de registro
+  
   const [modalRegistroAbierto, setModalRegistroAbierto] = useState(false);
   const [formData, setFormData] = useState({
     nombre_completo: '',
@@ -376,7 +376,7 @@ const Usuarios = () => {
         </DialogActions>
       </Dialog>
 
-      {/* ========== MODAL REGISTRO DE NUEVO USUARIO ========== */}
+      {/*  MODAL REGISTRO DE NUEVO USUARIO */}
       <Dialog open={modalRegistroAbierto} onClose={cerrarModalRegistro} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
         <DialogTitle sx={{ color: '#1E5631', fontWeight: 'bold' }}>
           Registrar Nuevo Usuario

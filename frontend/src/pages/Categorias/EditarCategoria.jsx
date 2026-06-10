@@ -7,7 +7,7 @@ const EditarCategoria = ({ open, onClose, categoria, onSuccess }) => {
   const [errorModal, setErrorModal] = useState('');
   const verdePapelitos = '#1E5631';
 
-  // Sincronizar el estado interno con la categoría que seleccionó el usuario
+
   useEffect(() => {
     if (categoria) {
       setNombre(categoria.nombre);
@@ -34,8 +34,8 @@ const EditarCategoria = ({ open, onClose, categoria, onSuccess }) => {
       const data = await response.json();
 
       if (response.ok) {
-        onSuccess(); // Avisa al padre que recargue la tabla
-        onClose();   // Cierra el modal
+        onSuccess(); 
+        onClose();   
       } else {
         // --- AQUÍ ESTÁ EL TRUCO DE TRADUCCIÓN ---
         let errorMsg = "Error al actualizar la categoría.";

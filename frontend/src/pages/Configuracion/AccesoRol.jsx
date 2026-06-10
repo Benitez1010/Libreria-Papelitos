@@ -39,11 +39,10 @@ const AccesoRol = ({ open, onClose, user, onSaveSuccess }) => {
         if (onSaveSuccess) onSaveSuccess(); // Notifica al padre
         onClose();       // Cierra el modal
         
-        // 2. MAGIA: Fuerza a React a recargar los permisos desde el backend inmediatamente.
-        // Si el Admin se cambia el rol a sí mismo, la pantalla se ajustará al instante.
+       
         window.location.reload(); 
       } else {
-        // 3. ESCUDO: Evitar el "Unexpected end of JSON input" si el servidor falla
+     
         const text = await response.text();
         try {
             const errorData = JSON.parse(text);

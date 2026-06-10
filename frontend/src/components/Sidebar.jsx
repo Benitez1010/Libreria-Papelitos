@@ -15,10 +15,10 @@ const SidebarContent = ({ openAdmin, setOpenAdmin, openConfig, setOpenConfig, on
   
   const esAdmin = usuarioInfo?.rol === 'Administrador' || usuarioInfo?.rol === 'ADMIN';
   
-  // Gestión Administrativa: Siempre visible para todos los roles logueados
+
   const mostrarCategoriaAdmin = true;
   
-  // Configuración: SOLO visible para el administrador
+
   const mostrarCategoriaConfig = esAdmin;
 
   const handleMenuClick = (setter, currentState) => {
@@ -30,7 +30,7 @@ const SidebarContent = ({ openAdmin, setOpenAdmin, openConfig, setOpenConfig, on
     }
   };
 
-  // Subcomponente perfeccionado para alinear los íconos al centro matemático
+  
   const NavItem = ({ to, icon, text, isSubmenu = false }) => {
     const styledIcon = React.cloneElement(icon, {
       sx: { 

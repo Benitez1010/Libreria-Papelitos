@@ -8,8 +8,7 @@ import SyncAltIcon from '@mui/icons-material/SyncAlt';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import BuildIcon from '@mui/icons-material/Build';
-import { ENDPOINTS } from '../services/api'; // Ajusta la ruta si es necesario
-
+import { ENDPOINTS } from '../services/api'; 
 const BotonTransacciones = () => {
   const navigate = useNavigate();
   const verdePapelitos = '#1E5631';

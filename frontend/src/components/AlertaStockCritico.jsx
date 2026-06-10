@@ -1,11 +1,12 @@
 import React from 'react';
 import { Snackbar, Alert, Typography } from '@mui/material';
 
+//Alerta que se muestra cuando el stock de un producto llega a un nivel crítico.
 const AlertaStockCritico = ({ open, onClose, productos }) => {
   return (
     <Snackbar 
       open={open} 
-      autoHideDuration={8000} // Se oculta automáticamente tras 8 segundos
+      autoHideDuration={8000} 
       onClose={onClose}
       anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
     >
@@ -13,7 +14,7 @@ const AlertaStockCritico = ({ open, onClose, productos }) => {
       <Alert 
         onClose={onClose} 
         severity="error" 
-        variant="filled" // Le da un fondo de color sólido para resaltar más
+        variant="filled" 
         sx={{ width: '100%', boxShadow: 3, borderRadius: '8px' }}
       >
         <Typography variant="subtitle2" fontWeight="bold">

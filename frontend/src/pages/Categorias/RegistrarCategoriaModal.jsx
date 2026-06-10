@@ -9,7 +9,7 @@ const RegistrarCategoriaModal = ({ open, onClose, onSuccess }) => {
   const [mensajeExito, setMensajeExito] = useState('');
   const [errorServidor, setErrorServidor] = useState('');
 
-  // Función para limpiar estados al cerrar el modal manualmente
+
   const manejarCierre = () => {
     setNombre('');
     setMensajeExito('');
@@ -59,7 +59,7 @@ const RegistrarCategoriaModal = ({ open, onClose, onSuccess }) => {
       open={open} 
       onClose={manejarCierre}
       fullWidth
-      maxWidth="xs" // Define un tamaño elegante y contenido de 444px
+      maxWidth="xs" 
     >
       {/* Título del Modal con botón de cerrar X integrado */}
       <DialogTitle sx={{ m: 0, p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

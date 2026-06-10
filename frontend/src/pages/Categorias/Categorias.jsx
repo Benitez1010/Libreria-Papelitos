@@ -23,7 +23,7 @@ const Categorias = () => {
   const [esAdmin, setEsAdmin] = useState(false);
   const [permisos, setPermisos] = useState({});
   
-  // Estados para controlar el Modal Externo
+
   const [modalOpen, setModalOpen] = useState(false);
   const [modalCrearOpen, setModalCrearOpen] = useState(false);
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null);
@@ -36,7 +36,7 @@ const Categorias = () => {
     const inicializarDatos = async () => {
       const token = localStorage.getItem('token');
       try {
-        // 1. Obtener los permisos del usuario logueado
+       
         if (token) {
           const resUser = await fetch(`${ENDPOINTS.SEGURIDAD.LOGIN.replace('/login/', '')}/me/`, {
             headers: {
@@ -51,7 +51,7 @@ const Categorias = () => {
           }
         }
 
-        // 2. Cargar las categorías
+        
         const response = await fetch(ENDPOINTS.INVENTARIO.CATEGORIAS);
         if (response.ok) {
           const data = await response.json();
@@ -145,7 +145,7 @@ const Categorias = () => {
           </TableHead>
           <TableBody>
             {categoriasFiltradas.length > 0 ? (
-              /* MODIFICACIÓN: Agregamos el parámetro 'index' al .map */
+              
               categoriasFiltradas.map((cat, index) => (
                 <TableRow key={cat.id} hover>
                   {/* MODIFICACIÓN: Mostramos index + 1 respetando el orden alfabético */}

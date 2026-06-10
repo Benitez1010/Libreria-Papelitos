@@ -20,7 +20,7 @@ const BotonExportar = () => {
   };
 
   const handleExport = (tipo) => {
-    // Aquí conectaremos la lógica de tu backlog en el futuro
+    
     console.log(`Preparando exportación para: ${tipo}`);
     handleClose();
   };
