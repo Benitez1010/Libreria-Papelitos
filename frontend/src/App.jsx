@@ -53,18 +53,13 @@ function App() {
           } />
 
           {/*Vista de menu de acceso por usuario*/}
-          <Route path="Listadousuarios" element={
+          <Route path="acceso-rol" element={
             <ProtectorRuta modulo="acceso_rol">
               <UsuarioAcceso />
             </ProtectorRuta>
           } />
 
-          {/* Vista de configuración de acceso por rol con ID dinámico */}
-          <Route path="Listadousuarios/acceso-rol/:id" element={
-            <ProtectorRuta modulo="acceso_rol">
-              <AccesoRol />
-            </ProtectorRuta>
-          } />
+          
 
           {/* Rutas para productos y movimientos */}
           <Route path="inventario/movimiento" element={<

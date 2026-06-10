@@ -164,8 +164,7 @@ const SidebarContent = ({ openAdmin, setOpenAdmin, openConfig, setOpenConfig, on
               <Collapse in={openConfig && desktopOpen} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
                   <NavItem to="/usuarios" icon={<Group sx={{ color: 'white' }} />} text="Usuarios" isSubmenu />
-                  <NavItem to="" icon={<ManageAccounts sx={{ color: 'white' }} />} text="Roles" isSubmenu />
-                  <NavItem to="/Listadousuarios" icon={<Security sx={{ color: 'white' }} />} text="Acceso por Rol" isSubmenu />
+                  <NavItem to="/acceso-rol" icon={<Security sx={{ color: 'white' }} />} text="Acceso por Rol" isSubmenu />
                 </List>
               </Collapse>
             </>
