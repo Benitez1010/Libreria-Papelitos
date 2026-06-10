@@ -18,6 +18,12 @@ const AccesoRol = ({ open, onClose, user, onSaveSuccess }) => {
   }, [user]);
 
   const handleGuardar = async () => {
+    // 1. ESCUDO: Evitar peticiones a URLs rotas por falta de ID
+    if (!user?.id) {
+      alert("Error: No se encontró el ID del usuario.");
+      return;
+    }
+
     setCargando(true);
     try {
       const response = await fetch(`${ENDPOINTS.USUARIOS}${user.id}/cambiar-rol/`, {
@@ -30,11 +36,22 @@ const AccesoRol = ({ open, onClose, user, onSaveSuccess }) => {
       });
 
       if (response.ok) {
-        onSaveSuccess(); // Notifica al padre que debe recargar la tabla
+        if (onSaveSuccess) onSaveSuccess(); // Notifica al padre
         onClose();       // Cierra el modal
+        
+        // 2. MAGIA: Fuerza a React a recargar los permisos desde el backend inmediatamente.
+        // Si el Admin se cambia el rol a sí mismo, la pantalla se ajustará al instante.
+        window.location.reload(); 
       } else {
-        const errorData = await response.json();
-        alert(errorData.error || "Error al actualizar el rol.");
+        // 3. ESCUDO: Evitar el "Unexpected end of JSON input" si el servidor falla
+        const text = await response.text();
+        try {
+            const errorData = JSON.parse(text);
+            alert(errorData.error || "Error al actualizar el rol.");
+        } catch {
+            alert("Error en el servidor. Revisa la consola.");
+            console.error("Respuesta del servidor no es JSON:", text);
+        }
       }
     } catch (error) {
       console.error("Error:", error);

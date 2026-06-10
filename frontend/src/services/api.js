@@ -12,4 +12,6 @@ export const ENDPOINTS = {
   SEGURIDAD: {
     LOGIN: `${BASE_URL}login/`,
   },
+  // Módulo de Usuarios
+  USUARIOS: `${BASE_URL}usuarios/`,
 }
