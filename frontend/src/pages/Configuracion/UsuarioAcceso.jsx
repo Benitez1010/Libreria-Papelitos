@@ -79,7 +79,7 @@ const UsuarioAcceso = () => {
     <Box sx={{ p: 4 }}>
       <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
         <PersonSearchIcon sx={{ fontSize: 40, color: '#009F4D' }} />
-        <Typography variant="h4" fontWeight="bold">Control de accesos</Typography>
+        <Typography variant="h4" fontWeight="bold">Acceso por Rol</Typography>
       </Box>
 
       {cargando ? (
