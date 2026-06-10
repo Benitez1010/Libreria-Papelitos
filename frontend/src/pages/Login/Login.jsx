@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { 
   Box, Button, TextField, Typography, Paper, 
-  Fade, CircularProgress, Slide, IconButton, InputAdornment
+  Fade, CircularProgress, Zoom, IconButton, InputAdornment,
+  Collapse
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
@@ -13,10 +14,10 @@ const Login = () => {
   const [error, setError] = useState('');
   const [cargando, setCargando] = useState(false);
   const [mostrarError, setMostrarError] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // <-- NUEVO: controlar ojito
+  const [showPassword, setShowPassword] = useState(false); // <-- Control de visibilidad
   const navigate = useNavigate();
 
-    // Si ya hay sesión iniciada, redirigir al dashboard
+  // Si ya hay sesión iniciada, redirigir al dashboard
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -24,7 +25,7 @@ const Login = () => {
     }
   }, [navigate]);
 
-    const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setMostrarError(false);
@@ -92,18 +93,20 @@ const Login = () => {
         p: 2
       }}
     >
-      <Fade in={true} timeout={800}>
+      {/* Entrada suave de toda la tarjeta */}
+      <Zoom in={true} timeout={600}>
         <Paper 
-          elevation={6} 
+          elevation={10} 
           sx={{ 
             display: 'flex', 
             width: { xs: '100%', sm: '900px' }, 
-            minHeight: '500px',
-            borderRadius: 3,
-            overflow: 'hidden'
+            minHeight: '550px',
+            borderRadius: 4,
+            overflow: 'hidden',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.2)'
           }}
         >
-          {/* ========== PANEL IZQUIERDO (Verde oscuro con logo) ========== */}
+          {/* ========== PANEL IZQUIERDO (Diseño original recuperado) ========== */}
           <Box 
             sx={{ 
               width: { xs: '0%', md: '50%' }, 
@@ -112,8 +115,7 @@ const Login = () => {
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              p: 4,
-              gap: 3
+              p: 4
             }}
           >
             <Box 
@@ -121,17 +123,17 @@ const Login = () => {
               src="/logo.png" 
               alt="Logo Papelitos" 
               sx={{ 
-                width: 300, 
+                width: 320, 
                 height: 'auto',
                 transition: 'transform 0.5s ease',
                 '&:hover': {
-                  transform: 'scale(1.05) rotate(2deg)',
+                  transform: 'scale(1.05) rotate(2deg)', // <-- Efecto original que te gustaba
                 }
               }} 
             />
           </Box>
 
-          {/* ========== PANEL DERECHO (Formulario) ========== */}
+          {/* ========== PANEL DERECHO (Formulario con Zoom In) ========== */}
           <Box 
             sx={{ 
               width: { xs: '100%', md: '50%' }, 
@@ -139,28 +141,28 @@ const Login = () => {
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'center',
-              p: { xs: 3, md: 5 },
-              gap: 3
+              p: { xs: 4, md: 6 },
+              gap: 4
             }}
           >
-            <Typography 
-              variant="h4" 
-              fontWeight="bold" 
-              sx={{ 
-                color: 'black', 
-                mb: 1,
-                animation: 'fadeInDown 0.8s ease'
-              }}
-            >
-              INICIO DE SESION
-            </Typography>
+            {/* El título viene "de afuera hacia adentro" */}
+            <Zoom in={true} style={{ transitionDelay: '300ms' }}>
+              <Typography 
+                variant="h4" 
+                fontWeight="900" 
+                sx={{ color: '#1E5631', letterSpacing: 1 }}
+              >
+                INICIO DE SESIÓN
+              </Typography>
+            </Zoom>
             
-            <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+            <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
               
-              <Slide direction="right" in={true} timeout={600}>
+              {/* Campo Usuario con Zoom */}
+              <Zoom in={true} style={{ transitionDelay: '500ms' }}>
                 <Box>
-                  <Typography variant="body1" sx={{ mb: 1, color: 'black', fontWeight: 500 }}>
-                    Usuario o Correo Electronico:
+                  <Typography variant="body2" sx={{ mb: 1, color: 'black', fontWeight: 'bold' }}>
+                    Usuario o Correo Electrónico:
                   </Typography>
                   <TextField
                     fullWidth
@@ -171,24 +173,19 @@ const Login = () => {
                     sx={{ 
                       backgroundColor: 'white', 
                       borderRadius: 2,
-                      '& .MuiOutlinedInput-root': { 
-                        borderRadius: 2,
-                        transition: 'all 0.3s ease',
-                        '&.Mui-focused': {
-                          boxShadow: '0 0 0 3px rgba(30, 86, 49, 0.2)',
-                        }
-                      }
+                      '& .MuiOutlinedInput-root': { borderRadius: 2 }
                     }}
                   />
                 </Box>
-              </Slide>
+              </Zoom>
 
-              <Slide direction="right" in={true} timeout={800}>
+              {/* Campo Contraseña con Zoom */}
+              <Zoom in={true} style={{ transitionDelay: '700ms' }}>
                 <Box>
-                  <Typography variant="body1" sx={{ mb: 1, color: 'black', fontWeight: 500 }}>
-                    Contraseña
+                  <Typography variant="body2" sx={{ mb: 1, color: 'black', fontWeight: 'bold' }}>
+                    Contraseña:
                   </Typography>
-                                    <TextField
+                  <TextField
                     fullWidth
                     type={showPassword ? 'text' : 'password'}
                     value={contrasena}
@@ -199,83 +196,66 @@ const Login = () => {
                       input: {
                         endAdornment: (
                           <InputAdornment position="end">
-                            <IconButton
-                              onClick={toggleShowPassword}
-                              edge="end"
-                              sx={{ color: '#666' }}
-                            >
+                            <IconButton onClick={toggleShowPassword} edge="end">
                               {showPassword ? <VisibilityOff /> : <Visibility />}
                             </IconButton>
                           </InputAdornment>
                         ),
                       },
                     }}
-                     sx={{ 
-                      '& input::-ms-reveal': { display: 'none' },
-                      '& input::-webkit-textfield-decoration-container': { display: 'none' },
+                    sx={{ 
                       backgroundColor: 'white', 
                       borderRadius: 2,
-                      '& .MuiOutlinedInput-root': { 
-                        borderRadius: 2,
-                        transition: 'all 0.3s ease',
-                        '&.Mui-focused': {
-                          boxShadow: '0 0 0 3px rgba(30, 86, 49, 0.2)',
-                        }
-                      }
+                      '& .MuiOutlinedInput-root': { borderRadius: 2 }
                     }}
                   />
                 </Box>
-              </Slide>
+              </Zoom>
               
-              {mostrarError && (
-                <Slide direction="left" in={mostrarError} timeout={300}>
-                  <Typography sx={{ 
-                    color: '#d32f2f', 
-                    fontSize: '0.9rem', 
-                    textAlign: 'center',
-                    animation: mostrarError ? 'shake 0.5s ease' : 'none'
-                  }}>
-                    {error}
-                  </Typography>
-                </Slide>
-              )}
+              {/* Error con expansión fluida */}
+              <Collapse in={mostrarError}>
+                <Box sx={{ 
+                  backgroundColor: '#ffebee', 
+                  color: '#d32f2f', 
+                  p: 1.5, 
+                  borderRadius: 2, 
+                  textAlign: 'center',
+                  border: '1px solid #ffcdd2'
+                }}>
+                  <Typography variant="caption" fontWeight="bold">{error}</Typography>
+                </Box>
+              </Collapse>
               
-              <Button
-                fullWidth
-                type="submit"
-                variant="contained"
-                size="large"
-                disabled={cargando}
-                sx={{
-                  backgroundColor: '#1E5631',
-                  color: 'white',
-                  py: 1.5,
-                  borderRadius: 3,
-                  textTransform: 'none',
-                  fontSize: '1.1rem',
-                  fontWeight: 'bold',
-                  transition: 'all 0.3s ease',
-                  '&:hover': { 
-                    backgroundColor: '#143D22',
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 4px 12px rgba(30, 86, 49, 0.4)',
-                  },
-                  '&:active': {
-                    transform: 'translateY(0)',
-                  },
-                  mt: 1
-                }}
-              >
-                {cargando ? (
-                  <CircularProgress size={24} sx={{ color: 'white' }} />
-                ) : (
-                  'Acceder'
-                )}
-              </Button>
+              {/* Botón con Zoom final */}
+              <Zoom in={true} style={{ transitionDelay: '900ms' }}>
+                <Button
+                  fullWidth
+                  type="submit"
+                  variant="contained"
+                  size="large"
+                  disabled={cargando}
+                  sx={{
+                    backgroundColor: '#1E5631',
+                    color: 'white',
+                    py: 1.8,
+                    borderRadius: 2,
+                    textTransform: 'none',
+                    fontSize: '1.1rem',
+                    fontWeight: 'bold',
+                    boxShadow: '0 4px 12px rgba(30, 86, 49, 0.3)',
+                    '&:hover': { 
+                      backgroundColor: '#143D22',
+                      transform: 'scale(1.02)' 
+                    }
+                  }}
+                >
+                  {cargando ? <CircularProgress size={24} color="inherit" /> : 'Acceder al Sistema'}
+                </Button>
+              </Zoom>
             </Box>
           </Box>
         </Paper>
-      </Fade>
+      </Zoom>
     </Box>
   );
 };
