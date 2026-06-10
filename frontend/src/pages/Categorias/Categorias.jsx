@@ -25,8 +25,7 @@ const Categorias = () => {
   
   // Estados para controlar el Modal Externo
   const [modalOpen, setModalOpen] = useState(false);
-  // AGREGAR ESTA LÍNEA JUNTO A LOS DEMÁS STATE:
-const [modalCrearOpen, setModalCrearOpen] = useState(false);
+  const [modalCrearOpen, setModalCrearOpen] = useState(false);
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null);
 
   const [alertaGlobal, setAlertaGlobal] = useState({ tipo: '', mensaje: '' });
@@ -136,7 +135,8 @@ const [modalCrearOpen, setModalCrearOpen] = useState(false);
         <Table>
           <TableHead sx={{ backgroundColor: verdePapelitos }}>
             <TableRow>
-              <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>ID</TableCell>
+              {/* MODIFICACIÓN: Cambiamos ID por N° */}
+              <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>N°</TableCell>
               <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>NOMBRE DE LA CATEGORÍA</TableCell>
               {(puedeEditar || puedeEliminar) && (
                 <TableCell sx={{ color: 'white', fontWeight: 'bold', textAlign: 'center' }}>ACCIONES</TableCell>
@@ -145,9 +145,11 @@ const [modalCrearOpen, setModalCrearOpen] = useState(false);
           </TableHead>
           <TableBody>
             {categoriasFiltradas.length > 0 ? (
-              categoriasFiltradas.map((cat) => (
+              /* MODIFICACIÓN: Agregamos el parámetro 'index' al .map */
+              categoriasFiltradas.map((cat, index) => (
                 <TableRow key={cat.id} hover>
-                  <TableCell sx={{ fontWeight: 'bold' }}>#{cat.id}</TableCell>
+                  {/* MODIFICACIÓN: Mostramos index + 1 respetando el orden alfabético */}
+                  <TableCell sx={{ fontWeight: 'bold' }}>#{index + 1}</TableCell>
                   <TableCell>{cat.nombre}</TableCell>
                   
                   {(puedeEditar || puedeEliminar) && (
@@ -188,11 +190,9 @@ const [modalCrearOpen, setModalCrearOpen] = useState(false);
         open={modalCrearOpen}
         onClose={() => setModalCrearOpen(false)}
         onSuccess={async () => {
-          // Refresca la tabla automáticamente consultando a Django
           const response = await fetch(ENDPOINTS.INVENTARIO.CATEGORIAS);
           if (response.ok) setCategorias(await response.json());
           
-          // Muestra la alerta verde de éxito
           setAlertaGlobal({ tipo: 'success', mensaje: 'Categoría guardada correctamente.' });
           setTimeout(() => setAlertaGlobal({ tipo: '', mensaje: '' }), 3000);
         }}
@@ -204,8 +204,7 @@ const [modalCrearOpen, setModalCrearOpen] = useState(false);
           open={modalOpen} 
           onClose={() => { setModalOpen(false); setCategoriaSeleccionada(null); }} 
           categoria={categoriaSeleccionada}
-          onSuccess={() => { 
-            // Recarga las categorías limpiamente
+          onSuccess={() => {
             fetch(ENDPOINTS.INVENTARIO.CATEGORIAS).then(res => res.json()).then(data => setCategorias(data));
             setAlertaGlobal({ tipo: 'success', mensaje: 'Categoría actualizada correctamente.' }); 
             setTimeout(() => setAlertaGlobal({ tipo: '', mensaje: '' }), 3000); 
