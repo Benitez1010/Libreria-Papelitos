@@ -77,7 +77,7 @@ const Login = () => {
     }
   };
 
-  // NUEVO: alternar mostrar/ocultar contraseña
+  // alternar mostrar/ocultar contraseña
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   };
@@ -106,7 +106,7 @@ const Login = () => {
             boxShadow: '0 20px 40px rgba(0,0,0,0.2)'
           }}
         >
-          {/* ========== PANEL IZQUIERDO (Diseño original recuperado) ========== */}
+          {/* ========== PANEL IZQUIERDO ========== */}
           <Box 
             sx={{ 
               width: { xs: '0%', md: '50%' }, 
@@ -127,13 +127,13 @@ const Login = () => {
                 height: 'auto',
                 transition: 'transform 0.5s ease',
                 '&:hover': {
-                  transform: 'scale(1.05) rotate(2deg)', // <-- Efecto original que te gustaba
+                  transform: 'scale(1.05) rotate(2deg)', 
                 }
               }} 
             />
           </Box>
 
-          {/* ========== PANEL DERECHO (Formulario con Zoom In) ========== */}
+          {/* ========== PANEL DERECHO ========== */}
           <Box 
             sx={{ 
               width: { xs: '100%', md: '50%' }, 
@@ -145,7 +145,7 @@ const Login = () => {
               gap: 4
             }}
           >
-            {/* El título viene "de afuera hacia adentro" */}
+            {/* animacion titulo */}
             <Zoom in={true} style={{ transitionDelay: '300ms' }}>
               <Typography 
                 variant="h4" 
@@ -173,13 +173,15 @@ const Login = () => {
                     sx={{ 
                       backgroundColor: 'white', 
                       borderRadius: 2,
-                      '& .MuiOutlinedInput-root': { borderRadius: 2 }
+                      '& .MuiOutlinedInput-root': { borderRadius: 2 },
+                      '& input::-ms-reveal': { display: 'none !important' },
+                      '& input::-ms-clear': { display: 'none !important' }
                     }}
                   />
                 </Box>
               </Zoom>
 
-              {/* Campo Contraseña con Zoom */}
+              {/* animacion contraseña */}
               <Zoom in={true} style={{ transitionDelay: '700ms' }}>
                 <Box>
                   <Typography variant="body2" sx={{ mb: 1, color: 'black', fontWeight: 'bold' }}>
@@ -201,6 +203,9 @@ const Login = () => {
                             </IconButton>
                           </InputAdornment>
                         ),
+                        sx: {
+                          '& input::-ms-reveal, & input::-ms-clear': { display: 'none !important' }
+                        }
                       },
                     }}
                     sx={{ 
@@ -212,7 +217,7 @@ const Login = () => {
                 </Box>
               </Zoom>
               
-              {/* Error con expansión fluida */}
+              {/* animacion error */}
               <Collapse in={mostrarError}>
                 <Box sx={{ 
                   backgroundColor: '#ffebee', 
@@ -226,7 +231,7 @@ const Login = () => {
                 </Box>
               </Collapse>
               
-              {/* Botón con Zoom final */}
+              {/*animacion boton */}
               <Zoom in={true} style={{ transitionDelay: '900ms' }}>
                 <Button
                   fullWidth
