@@ -1,122 +1,94 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { Routes, Route } from 'react-router-dom';
+import MainLayout from './layouts/MainLayout';
+import Dashboard from './pages/Dashboard/Dashboard';
+import Usuarios from './pages/Usuarios/Usuarios';
+import RutaPrivada from './components/RutaPrivada';
+import Login from './pages/Login/Login';
+import EditarCategoria from './pages/Categorias/EditarCategoria'; 
+import Categorias from './pages/Categorias/Categorias';
+import UsuarioAcceso from './pages/Configuracion/UsuarioAcceso';
+import AccesoRol from './pages/Configuracion/AccesoRol';
+import ProtectorRuta from './components/ProtectorRuta'; // Ajusta la ruta si es necesario
+import ControlInactividad from './components/ControlInactividad';
+import RegistrarMovimiento from './pages/Productos/RegistrarMovimiento';
+import ListaProductos from './pages/Productos/ListaProductos';
+import EditarProducto from './pages/Productos/EditarProducto';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <Routes>
+      {/* Ruta pública: Login no requiere autenticación y no tiene Sidebar */}
+      <Route path="/login" element={<Login />} />
 
-      <div className="ticks"></div>
+      {/* Rutas protegidas: requieren iniciar sesión */}
+      <Route element={<RutaPrivada />}>
+        <Route path="/" element={
+          <ControlInactividad>
+            <MainLayout />
+          </ControlInactividad>
+        }>
+          {/* Cualquier ruta que se ponga aquí dentro, lo tendra el Sidebar automáticamente */}
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+          {/* Vista del Dashboard */}
+          <Route index element={<Dashboard />} />
+          
+          {/* Nueva Vista enlazada (localhost:5173/usuarios) */}
+          <Route path="usuarios" element={
+            <ProtectorRuta modulo="usuarios">
+              <Usuarios />
+            </ProtectorRuta>
+          } />
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+           {/* Módulo de Categorías en App.jsx */}
+          <Route path="categorias" element={
+            <ProtectorRuta modulo="categorias">
+              <Categorias />
+            </ProtectorRuta>
+          } />
+
+          <Route path="categorias/editar/:id" element={
+            <ProtectorRuta modulo="categorias">
+              <EditarCategoria />
+            </ProtectorRuta>
+          } />
+
+          {/*Vista de menu de acceso por usuario*/}
+          <Route path="Listadousuarios" element={
+            <ProtectorRuta modulo="acceso_rol">
+              <UsuarioAcceso />
+            </ProtectorRuta>
+          } />
+
+          {/* Vista de configuración de acceso por rol con ID dinámico */}
+          <Route path="Listadousuarios/acceso-rol/:id" element={
+            <ProtectorRuta modulo="acceso_rol">
+              <AccesoRol />
+            </ProtectorRuta>
+          } />
+
+          {/* Rutas para productos y movimientos */}
+          <Route path="inventario/movimiento" element={<
+            ProtectorRuta modulo="movimientos">
+              <RegistrarMovimiento />
+            </ProtectorRuta>
+            } />
+          
+          <Route path="productos" element={
+            <ProtectorRuta modulo="productos">
+              <ListaProductos />
+            </ProtectorRuta>
+          } />
+
+          <Route path="productos/editar/:id" element={
+            <ProtectorRuta modulo="productos">
+              <EditarProducto />
+            </ProtectorRuta>
+          } />
+          
+        </Route>
+      </Route>
+    </Routes>
+  );
 }
 
-export default App
+export default App;
