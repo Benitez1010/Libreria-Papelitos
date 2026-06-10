@@ -88,9 +88,14 @@ const ListaProductos = () => {
   }, []);
 
   // Lógica de Permisos
-  const esAdmin = usuarioInfo?.rol === 'ADMIN' || usuarioInfo?.rol === 'Administrador';
+  const rol = usuarioInfo?.rol || '';
+  const esAdmin = rol === 'ADMIN' || rol === 'Administrador';
+  const esBodega = rol === 'BODEGA' || rol === 'Operador de Bodega';
+
   const puedeExportar = esAdmin;
-  const puedeGestionarProducto = esAdmin; // Agregar, Editar, Eliminar
+  const puedeGestionarProducto = esAdmin || esBodega; // Agregar, Editar, 
+  const puedeEliminarProducto = esAdmin; // Solo eliminar para Admin
+  
 
   // Función del Botón "Recargar"
   const handleRecargarTabla = () => {
@@ -276,7 +281,9 @@ const ListaProductos = () => {
                 <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>CATEGORÍA</TableCell>
                 <TableCell align="center" sx={{ color: 'white', fontWeight: 'bold' }}>BODEGA</TableCell>
                 <TableCell align="center" sx={{ color: 'white', fontWeight: 'bold' }}>VITRINA</TableCell>
-                {puedeGestionarProducto && <TableCell align="center" sx={{ color: 'white', fontWeight: 'bold' }}>ACCIONES</TableCell>}
+                {(puedeGestionarProducto || puedeEliminarProducto) && (
+                  <TableCell align="center" sx={{ color: 'white', fontWeight: 'bold' }}>ACCIONES</TableCell>
+                )}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -294,20 +301,34 @@ const ListaProductos = () => {
                       {producto.stock_vitrina ?? 0}
                     </TableCell>
 
-                    {puedeGestionarProducto && (
-                      <TableCell align="center">
+                    {/* Celda de Acciones - Lógica separada por permisos */}
+                  {(puedeGestionarProducto || puedeEliminarProducto) && (
+                    <TableCell align="center">
+                      {/* El Administrador y Bodega pueden editar */}
+                      {puedeGestionarProducto && (
                         <Tooltip title="Editar Producto">
-                          <IconButton onClick={() => navigate(`/productos/editar/${producto.id}`)} sx={{ color: verdePapelitos, mr: 0.5 }}>
+                          <IconButton 
+                            onClick={() => navigate(`/productos/editar/${producto.id}`)} 
+                            sx={{ color: verdePapelitos, mr: 0.5 }}
+                          >
                             <EditIcon />
                           </IconButton>
                         </Tooltip>
+                      )}
+                      
+                      {/* SOLO el Administrador puede eliminar */}
+                      {puedeEliminarProducto && (
                         <Tooltip title="Eliminar Producto">
-                          <IconButton onClick={() => handleEliminarProducto(producto.id)} sx={{ color: '#d32f2f' }}>
+                          <IconButton 
+                            onClick={() => handleEliminarProducto(producto.id)} 
+                            sx={{ color: '#d32f2f' }}
+                          >
                             <DeleteIcon />
                           </IconButton>
                         </Tooltip>
-                      </TableCell>
-                    )}
+                      )}
+                    </TableCell>
+                  )}
                   </TableRow>
                 ))
               ) : (
